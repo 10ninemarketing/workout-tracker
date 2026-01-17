@@ -41,6 +41,28 @@ export default function LogWorkout({ db, api }){
       .sort((a,b)=> (a.dateIso < b.dateIso ? 1 : -1))
   }, [db.sessions, activeProfileId])
 
+  // For "last-time" hints: map exerciseId -> most recent previous sets.
+  const lastTimeByExercise = useMemo(()=>{
+    const map = new Map()
+    for (const s of sessions){
+      for (const en of (s.entries || [])){
+        if (!en?.exerciseId) continue
+        if (!map.has(en.exerciseId)){
+          const sets = (en.sets || []).filter(st => (Number(st.weight)||0) > 0 && (Number(st.reps)||0) > 0)
+          map.set(en.exerciseId, { dateIso: s.dateIso, sets })
+        }
+      }
+      // Early exit once we have hints for all currently-visible entries
+      if (entries.length && entries.every(e => map.has(e.exerciseId))) break
+    }
+    return map
+  }, [sessions, entries])
+
+  function formatHintSets(sets){
+    if (!sets || sets.length === 0) return ''
+    return sets.slice(0,6).map(st => `${st.weight}×${st.reps}`).join(', ')
+  }
+
   function addExerciseEntry(){
     const ex = activeExercises.find(e=>e.id === exercisePick)
     if (!ex) return
@@ -201,6 +223,16 @@ export default function LogWorkout({ db, api }){
                     <button className="danger" onClick={()=>removeExerciseEntry(en.exerciseId)}>Remove</button>
                   </div>
                 </div>
+
+                {(() => {
+                  const hint = lastTimeByExercise.get(en.exerciseId)
+                  if (!hint || !hint.sets || hint.sets.length === 0) return null
+                  return (
+                    <div className="muted" style={{fontSize:12, marginBottom:10}}>
+                      Last time ({formatDate(hint.dateIso)}): {formatHintSets(hint.sets)}
+                    </div>
+                  )
+                })()}
 
                 <div style={{overflowX:'auto'}}>
                   <table className="table">

@@ -1,6 +1,7 @@
 import React, { useMemo, useState } from 'react'
 import NavBar from './components/NavBar.jsx'
 import Dashboard from './screens/Dashboard.jsx'
+import History from './screens/History.jsx'
 import LogWorkout from './screens/LogWorkout.jsx'
 import Exercises from './screens/Exercises.jsx'
 import Settings from './screens/Settings.jsx'
@@ -41,6 +42,7 @@ export default function App(){
       </div>
 
       {tab === 'dashboard' && <Dashboard db={db} api={api} />}
+      {tab === 'history' && <History db={db} api={api} />}
       {tab === 'log' && <LogWorkout db={db} api={api} />}
       {tab === 'exercises' && <Exercises db={db} api={api} />}
       {tab === 'settings' && <Settings db={db} api={api} />}

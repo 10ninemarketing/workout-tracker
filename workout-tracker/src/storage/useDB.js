@@ -45,7 +45,18 @@ export function useDB(){
       setDb(d=>({ ...d, exercises: d.exercises.filter(e=>e.id !== id) }))
     },
     addSession(session){
-      setDb(d=>({ ...d, sessions: [...d.sessions, session] }))
+      // Keep only the most recent 14 days of sessions on-device (per user request).
+      const cutoff = new Date()
+      cutoff.setHours(0,0,0,0)
+      cutoff.setDate(cutoff.getDate() - 13) // inclusive 14-day window
+      setDb(d=>{
+        const next = [...d.sessions, session]
+          .filter(s => {
+            const dt = new Date(s.dateIso)
+            return dt >= cutoff
+          })
+        return { ...d, sessions: next }
+      })
     },
     updateSession(session){
       setDb(d=>({ ...d, sessions: d.sessions.map(s=>s.id === session.id ? { ...s, ...session } : s) }))

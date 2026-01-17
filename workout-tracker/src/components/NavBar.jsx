@@ -3,6 +3,7 @@ import React from 'react'
 export default function NavBar({ tab, setTab }){
   const items = [
     { key: 'dashboard', label: 'Dashboard' },
+    { key: 'history', label: 'History' },
     { key: 'log', label: 'Log' },
     { key: 'exercises', label: 'Exercises' },
     { key: 'settings', label: 'Settings' }
