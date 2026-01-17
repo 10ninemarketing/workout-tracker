@@ -1,5 +1,6 @@
 import React, { useMemo, useState } from 'react'
 import { computeE1RM, formatDate } from '../storage/db.js'
+import { DAY_TEMPLATES } from '../storage/templates.js'
 
 function uid(){
   if (globalThis.crypto?.randomUUID) return globalThis.crypto.randomUUID()
@@ -28,6 +29,7 @@ export default function LogWorkout({ db, api }){
   const activeExercises = useMemo(()=> db.exercises.filter(e=>e.isActive !== false).sort((a,b)=>a.name.localeCompare(b.name)), [db.exercises])
 
   const [date, setDate] = useState(formatDate(todayIso()))
+  const [dayTypeKey, setDayTypeKey] = useState('')
   const [notes, setNotes] = useState('')
   const [entries, setEntries] = useState([])
   const [exercisePick, setExercisePick] = useState(activeExercises[0]?.id || '')
@@ -49,6 +51,30 @@ export default function LogWorkout({ db, api }){
       exerciseName: ex.name,
       sets: [ { weight: '', reps: '', rpe: '' } ]
     }])
+  }
+
+  function ensureExerciseIdByName(name){
+    const found = db.exercises.find(e => e.name.trim().toLowerCase() === name.trim().toLowerCase())
+    if (found) return found.id
+    // If it's missing, create it so templates remain usable even if you deleted something.
+    const ex = { id: uid(), name, category: 'Uncategorized', equipment: '', isActive: true, createdAt: new Date().toISOString() }
+    api.upsertExercise(ex)
+    return ex.id
+  }
+
+  function loadDayTemplate(){
+    const tpl = DAY_TEMPLATES.find(t => t.key === dayTypeKey)
+    if (!tpl) return
+    const nextEntries = tpl.items.map(item => {
+      const exerciseId = ensureExerciseIdByName(item.name)
+      return {
+        exerciseId,
+        exerciseName: item.name,
+        sets: Array.from({ length: item.sets }).map(() => ({ weight: '', reps: '', rpe: '' }))
+      }
+    })
+    setEntries(nextEntries)
+    setNotes('')
   }
 
   function addSet(exId){
@@ -102,6 +128,7 @@ export default function LogWorkout({ db, api }){
       id: uid(),
       profileId: activeProfileId,
       dateIso,
+      dayType: DAY_TEMPLATES.find(t=>t.key===dayTypeKey)?.label || '',
       notes,
       entries: cleanedEntries,
       totalVolume: computeTotalVolume(cleanedEntries),
@@ -129,6 +156,21 @@ export default function LogWorkout({ db, api }){
           <div style={{minWidth:160}}>
             <label>Date</label>
             <input type="date" value={date} onChange={e=>setDate(e.target.value)} />
+          </div>
+        </div>
+
+        <div className="row">
+          <div>
+            <label>Start from day type (template)</label>
+            <select value={dayTypeKey} onChange={e=>setDayTypeKey(e.target.value)}>
+              <option value="">Select…</option>
+              {DAY_TEMPLATES.map(t => (
+                <option key={t.key} value={t.key}>{t.label}</option>
+              ))}
+            </select>
+          </div>
+          <div style={{display:'flex', alignItems:'end'}}>
+            <button className="primary" onClick={loadDayTemplate} disabled={!dayTypeKey}>Load</button>
           </div>
         </div>
 

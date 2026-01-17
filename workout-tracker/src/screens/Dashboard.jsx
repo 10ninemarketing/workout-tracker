@@ -12,6 +12,31 @@ function sum(arr){
   return arr.reduce((a,b)=>a+(Number(b)||0),0)
 }
 
+function isoFromDateInput(d){
+  // d: YYYY-MM-DD
+  if (!d) return ''
+  return new Date(d + 'T12:00:00').toISOString()
+}
+
+function downloadBlob({ content, mime, filename }){
+  const blob = new Blob([content], { type: mime })
+  const url = URL.createObjectURL(blob)
+  const a = document.createElement('a')
+  a.href = url
+  a.download = filename
+  a.click()
+  URL.revokeObjectURL(url)
+}
+
+function toCSV(rows){
+  const esc = (v) => {
+    const s = (v ?? '').toString()
+    if (/[\n\r",]/.test(s)) return '"' + s.replaceAll('"','""') + '"'
+    return s
+  }
+  return rows.map(r => r.map(esc).join(',')).join('\n')
+}
+
 export default function Dashboard({ db }){
   const activeProfileId = db.activeProfileId
 
@@ -85,6 +110,68 @@ export default function Dashboard({ db }){
     }
     return points
   }, [sessions, selectedExerciseId, db.settings.e1rmFormula])
+
+  // Export
+  const today = formatDate(new Date().toISOString())
+  const [exportStart, setExportStart] = useState(formatDate(daysAgo(6).toISOString()))
+  const [exportEnd, setExportEnd] = useState(today)
+
+  const exportSessions = useMemo(()=>{
+    const a = isoFromDateInput(exportStart)
+    const b = isoFromDateInput(exportEnd)
+    if (!a || !b) return []
+    const start = new Date(a)
+    const end = new Date(b)
+    end.setHours(23,59,59,999)
+    return sessions.filter(s => {
+      const d = new Date(s.dateIso)
+      return d >= start && d <= end
+    })
+  }, [sessions, exportStart, exportEnd])
+
+  function exportRangeJSON(){
+    const payload = {
+      exportedAt: new Date().toISOString(),
+      units: db.settings.units,
+      e1rmFormula: db.settings.e1rmFormula,
+      profileId: activeProfileId,
+      dateRange: { start: exportStart, end: exportEnd },
+      sessions: exportSessions,
+    }
+    downloadBlob({
+      content: JSON.stringify(payload, null, 2),
+      mime: 'application/json',
+      filename: `workouts-${exportStart}-to-${exportEnd}.json`
+    })
+  }
+
+  function exportRangeCSV(){
+    const header = ['date','dayType','exercise','set','weight','reps','rpe','e1rm','sessionNotes']
+    const rows = [header]
+    for (const s of exportSessions){
+      for (const e of s.entries){
+        e.sets.forEach((set, idx) => {
+          const e1 = computeE1RM({ weight: set.weight, reps: set.reps, formula: db.settings.e1rmFormula })
+          rows.push([
+            formatDate(s.dateIso),
+            s.dayType || '',
+            e.exerciseName,
+            String(idx+1),
+            set.weight ?? '',
+            set.reps ?? '',
+            set.rpe ?? '',
+            e1 ? Math.round(e1) : '',
+            s.notes || ''
+          ])
+        })
+      }
+    }
+    downloadBlob({
+      content: toCSV(rows),
+      mime: 'text/csv',
+      filename: `workouts-${exportStart}-to-${exportEnd}.csv`
+    })
+  }
 
   return (
     <div className="vstack">
@@ -160,6 +247,32 @@ export default function Dashboard({ db }){
             )}
           </div>
         )}
+      </div>
+
+      <div className="card vstack">
+        <div className="hstack" style={{justifyContent:'space-between'}}>
+          <div>
+            <div style={{fontWeight:700}}>Export workouts</div>
+            <div className="muted" style={{fontSize:12}}>Export a date range for logging & analysis.</div>
+          </div>
+          <div className="muted" style={{fontSize:12}}>{exportSessions.length} sessions</div>
+        </div>
+
+        <div className="row">
+          <div>
+            <label>Start</label>
+            <input type="date" value={exportStart} onChange={e=>setExportStart(e.target.value)} />
+          </div>
+          <div>
+            <label>End</label>
+            <input type="date" value={exportEnd} onChange={e=>setExportEnd(e.target.value)} />
+          </div>
+        </div>
+
+        <div className="hstack" style={{flexWrap:'wrap'}}>
+          <button className="primary" onClick={exportRangeJSON} disabled={exportSessions.length===0}>Export JSON</button>
+          <button onClick={exportRangeCSV} disabled={exportSessions.length===0}>Export CSV</button>
+        </div>
       </div>
 
       <div className="card vstack">
