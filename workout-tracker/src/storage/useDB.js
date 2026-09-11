@@ -45,18 +45,8 @@ export function useDB(){
       setDb(d=>({ ...d, exercises: d.exercises.filter(e=>e.id !== id) }))
     },
     addSession(session){
-      // Keep only the most recent 14 days of sessions on-device (per user request).
-      const cutoff = new Date()
-      cutoff.setHours(0,0,0,0)
-      cutoff.setDate(cutoff.getDate() - 13) // inclusive 14-day window
-      setDb(d=>{
-        const next = [...d.sessions, session]
-          .filter(s => {
-            const dt = new Date(s.dateIso)
-            return dt >= cutoff
-          })
-        return { ...d, sessions: next }
-      })
+      // Every workout is kept; nothing is pruned by age.
+      setDb(d=>({ ...d, sessions: [...d.sessions, session] }))
     },
     updateSession(session){
       setDb(d=>({ ...d, sessions: d.sessions.map(s=>s.id === session.id ? { ...s, ...session } : s) }))
@@ -72,7 +62,10 @@ export function useDB(){
     },
     importJSON(raw){
       const parsed = JSON.parse(raw)
-      // light guard; if it explodes, caller handles
+      // Only accept a full backup; anything else would wipe the library
+      if (!parsed || !Array.isArray(parsed.profiles) || !Array.isArray(parsed.exercises) || !Array.isArray(parsed.sessions)){
+        throw new Error('Not a full backup')
+      }
       setDb(parsed)
     }
   }), [db])

@@ -1,122 +1,75 @@
 import React, { useMemo, useState } from 'react'
-import { formatDate } from '../storage/db.js'
+import { Icon } from '../components/Icons.jsx'
+import { profileSessions, formatNumber, formatSet, setCount, plural } from '../lib/workout.js'
 
-function withinLastNDays(dateIso, days){
-  const d = new Date(dateIso)
-  const cutoff = new Date()
-  cutoff.setHours(0,0,0,0)
-  cutoff.setDate(cutoff.getDate() - (days - 1)) // inclusive window
-  return d >= cutoff
-}
+export default function History({ db, api, notify }){
+  const sessions = useMemo(() => profileSessions(db), [db])
+  const [openId, setOpenId] = useState(null)
+  const units = db.settings.units
 
-function formatSets(sets, units){
-  return sets
-    .filter(s => (Number(s.weight)||0) > 0 && (Number(s.reps)||0) > 0)
-    .map(s => `${s.weight}${units ? units : ''}×${s.reps}`)
-    .join(', ')
-}
-
-export default function History({ db, api }){
-  const activeProfileId = db.activeProfileId
-  const [selectedId, setSelectedId] = useState(null)
-
-  const sessions = useMemo(()=>{
-    return db.sessions
-      .filter(s => s.profileId === activeProfileId)
-      .filter(s => withinLastNDays(s.dateIso, 14))
-      .slice()
-      .sort((a,b)=> (a.dateIso < b.dateIso ? 1 : -1))
-  }, [db.sessions, activeProfileId])
-
-  const selected = useMemo(()=> sessions.find(s=>s.id === selectedId) || null, [sessions, selectedId])
-
-  function deleteSession(id){
-    if (!confirm('Delete this session?')) return
-    api.deleteSession(id)
-    if (selectedId === id) setSelectedId(null)
+  function remove(s){
+    if (!confirm('Delete this workout? This can’t be undone.')) return
+    api.deleteSession(s.id)
+    notify('Workout deleted')
   }
 
   return (
-    <div className="vstack">
-      <div className="card vstack">
-        <div className="hstack" style={{justifyContent:'space-between'}}>
-          <div>
-            <div style={{fontWeight:800}}>Workout history</div>
-            <div className="muted" style={{fontSize:12}}>Showing the last 14 days on this device.</div>
-          </div>
-          <div className="muted" style={{fontSize:12}}>{sessions.length} sessions</div>
+    <div className="screen">
+      <header className="page-head">
+        <div>
+          <div className="eyebrow">{plural(sessions.length, 'workout')}</div>
+          <h1 className="title-lg">History</h1>
         </div>
+      </header>
 
-        {sessions.length === 0 ? (
-          <div className="muted">No sessions in the last 14 days yet.</div>
-        ) : (
-          <div className="vstack" style={{gap:10}}>
-            {sessions.map(s => (
-              <div key={s.id} className="hstack" style={{justifyContent:'space-between', alignItems:'center'}}>
-                <button
-                  className={selectedId === s.id ? 'active' : ''}
-                  onClick={()=>setSelectedId(selectedId === s.id ? null : s.id)}
-                  style={{textAlign:'left', flex:1}}
-                >
-                  <div style={{fontWeight:700}}>{formatDate(s.dateIso)}{s.dayType ? ` • ${s.dayType}` : ''}</div>
-                  <div className="muted" style={{fontSize:12}}>{s.entries.length} exercises • {Math.round(s.totalVolume||0).toLocaleString()} vol</div>
-                </button>
-                <button className="danger" onClick={()=>deleteSession(s.id)}>Delete</button>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
-
-      {selected && (
-        <div className="card vstack">
-          <div className="hstack" style={{justifyContent:'space-between'}}>
-            <div>
-              <div style={{fontWeight:800}}>{formatDate(selected.dateIso)}{selected.dayType ? ` • ${selected.dayType}` : ''}</div>
-              <div className="muted" style={{fontSize:12}}>{selected.entries.length} exercises • {Math.round(selected.totalVolume||0).toLocaleString()} volume</div>
-            </div>
-            <button onClick={()=>setSelectedId(null)}>Close</button>
-          </div>
-
-          {selected.notes ? (
-            <div className="card" style={{background:'rgba(2,6,23,0.25)'}}>
-              <div style={{fontWeight:700, marginBottom:6}}>Notes</div>
-              <div className="muted" style={{whiteSpace:'pre-wrap'}}>{selected.notes}</div>
-            </div>
-          ) : null}
-
-          <div className="vstack" style={{gap:12}}>
-            {selected.entries.map(en => (
-              <div key={en.exerciseId} className="card" style={{background:'rgba(2,6,23,0.25)'}}>
-                <div style={{fontWeight:800, marginBottom:8}}>{en.exerciseName}</div>
-                <div className="muted" style={{fontSize:13}}>
-                  {formatSets(en.sets || [], '') || 'No logged sets.'}
-                </div>
-                <div style={{overflowX:'auto', marginTop:8}}>
-                  <table className="table">
-                    <thead>
-                      <tr>
-                        <th style={{width:60}}>Set</th>
-                        <th>Weight ({db.settings.units})</th>
-                        <th>Reps</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {(en.sets||[]).map((s, idx) => (
-                        <tr key={idx}>
-                          <td>{idx+1}</td>
-                          <td>{s.weight}</td>
-                          <td>{s.reps}</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            ))}
-          </div>
+      {sessions.length === 0 && (
+        <div className="card empty">
+          <div className="empty-title">No workouts yet</div>
+          <div className="muted">Finished workouts show up here.</div>
         </div>
       )}
+
+      {sessions.map(s => {
+        const open = openId === s.id
+        const d = new Date(s.dateIso)
+        return (
+          <section key={s.id} className="card session">
+            <button className="session-summary" aria-expanded={open} onClick={() => setOpenId(open ? null : s.id)}>
+              <span className="date-badge">
+                <span>{d.toLocaleDateString(undefined, { month: 'short' })}</span>
+                <strong>{d.getDate()}</strong>
+              </span>
+              <span className="row-main">
+                <span className="row-title">{s.dayType || 'Workout'}</span>
+                <span className="row-sub">
+                  {d.toLocaleDateString(undefined, { weekday: 'long' })}{s.durationMin ? ` · ${s.durationMin} min` : ''}
+                </span>
+                <span className="row-sub">
+                  {plural(s.entries.length, 'exercise')} · {plural(setCount(s), 'set')} · {formatNumber(s.totalVolume)} {units}
+                </span>
+              </span>
+              <Icon name="chevronRight" size={20} className={`chevron${open ? ' open' : ''}`} />
+            </button>
+
+            {open && (
+              <div className="session-detail">
+                {s.notes && <p className="session-notes">{s.notes}</p>}
+                {s.entries.map((en, i) => (
+                  <div key={`${en.exerciseId}-${i}`} className="session-ex">
+                    <div className="row-title">{en.exerciseName}</div>
+                    <div className="set-chips">
+                      {en.sets.map((st, j) => <span key={j} className="chip">{formatSet(st)}</span>)}
+                    </div>
+                  </div>
+                ))}
+                <button className="btn btn-danger btn-sm" onClick={() => remove(s)}>
+                  <Icon name="trash" size={16} /> Delete workout
+                </button>
+              </div>
+            )}
+          </section>
+        )
+      })}
     </div>
   )
 }

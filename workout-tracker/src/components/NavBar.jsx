@@ -1,27 +1,33 @@
 import React from 'react'
+import { Icon } from './Icons.jsx'
 
-export default function NavBar({ tab, setTab }){
-  const items = [
-    { key: 'dashboard', label: 'Dashboard' },
-    { key: 'history', label: 'History' },
-    { key: 'log', label: 'Log' },
-    { key: 'exercises', label: 'Exercises' },
-    { key: 'settings', label: 'Settings' }
-  ]
+const ITEMS = [
+  { key: 'dashboard', label: 'Home', icon: 'home' },
+  { key: 'history', label: 'History', icon: 'clock' },
+  { key: 'log', label: 'Workout', icon: 'dumbbell' },
+  { key: 'exercises', label: 'Exercises', icon: 'list' },
+  { key: 'settings', label: 'Settings', icon: 'sliders' }
+]
 
+export default function NavBar({ tab, setTab, inProgress }){
   return (
-    <div className="navbar">
-      <div className="inner">
-        {items.map(it => (
+    <nav className="tabbar" aria-label="Main">
+      <div className="tabbar-inner">
+        {ITEMS.map(it => (
           <button
             key={it.key}
-            className={tab === it.key ? 'active' : ''}
-            onClick={()=>setTab(it.key)}
+            className="tab"
+            aria-current={tab === it.key ? 'page' : undefined}
+            onClick={() => setTab(it.key)}
           >
-            <div style={{fontSize:12}}>{it.label}</div>
+            <span className="tab-icon">
+              <Icon name={it.icon} size={24} />
+              {it.key === 'log' && inProgress && <span className="tab-dot" aria-label="Workout in progress" />}
+            </span>
+            <span>{it.label}</span>
           </button>
         ))}
       </div>
-    </div>
+    </nav>
   )
 }

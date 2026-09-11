@@ -1,10 +1,12 @@
 # Workout Tracker (local-first)
 
-- Mobile-first workout logging
+- Mobile-first workout logging, with the in-progress workout saved as you go
+- Day templates, plus swap/add/reorder exercises mid-workout
+- "Previous" column showing last time's sets, tap to copy
 - Editable exercise library
 - Profiles (phone-specific)
-- PRs via estimated 1RM (Epley or Brzycki)
-- Export/Import backup
+- Best sets and a top-set progress chart per exercise
+- Export (CSV/JSON) and full backup/restore
 
 ## Local dev
 
