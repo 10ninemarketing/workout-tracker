@@ -28,7 +28,6 @@ export const DAY_TEMPLATES = [
     label: 'Day 3 – Legs',
     items: [
       { name: 'Leg Press', sets: 3 },
-      { name: 'Goblet Squats', sets: 3 },
       { name: 'Split Squats', sets: 3 },
       { name: 'Leg Extensions', sets: 2 },
       { name: 'Hamstring Curls', sets: 2 },
