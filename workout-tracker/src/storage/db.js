@@ -1,7 +1,7 @@
 import { uid } from '../lib/workout.js'
 
 const KEY = 'wt_v1'
-const SCHEMA_VERSION = 3
+const SCHEMA_VERSION = 4
 
 // Exercises that got renamed after the fact. History keeps a name snapshot per
 // entry, so a rename has to sweep the sessions too or old workouts keep the old label.
@@ -13,6 +13,12 @@ const RENAMES = {
 const ADDED_EXERCISES = [
   { name: 'Assisted Pull-Ups', category: 'Pull', equipment: 'Machine' },
 ]
+
+// The logged "Chest Supported Row" was always the incline-bench one-arm
+// dumbbell row; the name just never said so.
+const RENAMES_V4 = {
+  'Chest Supported Row': 'Chest-Supported DB Row (1-arm)',
+}
 
 // Gaps the old program never covered: a hinge, calves and loaded carries.
 const ADDED_EXERCISES_V3 = [
@@ -112,6 +118,21 @@ function migrate(db){
     }
   }
 
+  if (from < 4){
+    for (const [oldName, newName] of Object.entries(RENAMES_V4)){
+      const stale = db.exercises.find(e => e.name === oldName)
+      if (stale && !db.exercises.some(e => e.name === newName && e.id !== stale.id)){
+        stale.name = newName
+        stale.equipment = 'Dumbbell'
+      }
+      for (const s of db.sessions){
+        for (const en of s.entries){
+          if (en.exerciseName === oldName) en.exerciseName = newName
+        }
+      }
+    }
+  }
+
   db.version = SCHEMA_VERSION
   saveDB(db)
   return db
@@ -142,7 +163,7 @@ export function seedDB(){
     // Day 2 – Pull
     { name: 'Lat Pulldown', category: 'Pull', equipment: 'Machine' },
     { name: 'Seated Row (neutral grip)', category: 'Pull', equipment: 'Machine' },
-    { name: 'Chest Supported Row', category: 'Pull', equipment: 'Machine' },
+    { name: 'Chest-Supported DB Row (1-arm)', category: 'Pull', equipment: 'Dumbbell' },
     { name: 'Incline DB Curls', category: 'Biceps', equipment: 'Dumbbell' },
     { name: 'Hammer Curls', category: 'Biceps', equipment: 'Dumbbell' },
 
