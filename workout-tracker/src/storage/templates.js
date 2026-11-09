@@ -7,7 +7,7 @@ export const DAY_TEMPLATES = [
     label: 'Upper A – Heavy',
     items: [
       { name: 'Face Pulls', sets: 2, reps: '15–20' },
-      { name: 'Flat DB Bench (neutral grip)', sets: 3, reps: '6–8' },
+      { name: 'Smith Flat Press', sets: 3, reps: '6–8' },
       { name: 'Machine Row', sets: 3, reps: '6–8' },
       { name: 'Incline DB Bench (neutral grip)', sets: 2, reps: '10–12' },
       { name: 'Lat Pulldown', sets: 3, reps: '10–12' },
@@ -33,7 +33,7 @@ export const DAY_TEMPLATES = [
     label: 'Upper B – Volume',
     items: [
       { name: 'Cable External Rotations', sets: 2, reps: '15' },
-      { name: 'Machine Chest Press', sets: 3, reps: '8–10' },
+      { name: 'Flat DB Bench (neutral grip)', sets: 3, reps: '10–12' },
       { name: 'Pull-Ups (bodyweight)', sets: 4, reps: '6–10' },
       { name: 'Chest-Supported DB Row (1-arm)', sets: 3, reps: '10–12' },
       { name: 'DB Neutral-Grip High-Incline Press (~60°)', sets: 2, reps: '10–12' },

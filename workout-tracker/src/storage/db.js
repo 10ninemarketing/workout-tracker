@@ -1,7 +1,7 @@
 import { uid } from '../lib/workout.js'
 
 const KEY = 'wt_v1'
-const SCHEMA_VERSION = 4
+const SCHEMA_VERSION = 5
 
 // Exercises that got renamed after the fact. History keeps a name snapshot per
 // entry, so a rename has to sweep the sessions too or old workouts keep the old label.
@@ -18,6 +18,12 @@ const ADDED_EXERCISES = [
 // dumbbell row; the name just never said so.
 const RENAMES_V4 = {
   'Chest Supported Row': 'Chest-Supported DB Row (1-arm)',
+}
+
+// The "Machine Chest Press" was always the Smith. It is the only pressing
+// station without a load ceiling, so the name should say what it is.
+const RENAMES_V5 = {
+  'Machine Chest Press': 'Smith Flat Press',
 }
 
 // Gaps the old program never covered: a hinge, calves and loaded carries.
@@ -133,6 +139,21 @@ function migrate(db){
     }
   }
 
+  if (from < 5){
+    for (const [oldName, newName] of Object.entries(RENAMES_V5)){
+      const stale = db.exercises.find(e => e.name === oldName)
+      if (stale && !db.exercises.some(e => e.name === newName && e.id !== stale.id)){
+        stale.name = newName
+        stale.equipment = 'Smith'
+      }
+      for (const s of db.sessions){
+        for (const en of s.entries){
+          if (en.exerciseName === oldName) en.exerciseName = newName
+        }
+      }
+    }
+  }
+
   db.version = SCHEMA_VERSION
   saveDB(db)
   return db
@@ -181,7 +202,7 @@ export function seedDB(){
     { name: 'Plank', category: 'Core', equipment: 'Bodyweight' },
 
     // Day 4 – Push (light)
-    { name: 'Machine Chest Press', category: 'Push', equipment: 'Machine' },
+    { name: 'Smith Flat Press', category: 'Push', equipment: 'Smith' },
     { name: 'Decline DB Bench (neutral grip)', category: 'Push', equipment: 'Dumbbell' },
     { name: 'Cable Y-Raise', category: 'Shoulders', equipment: 'Cable' },
     { name: 'Lateral Raises (slow)', category: 'Shoulders', equipment: 'Dumbbell' },
