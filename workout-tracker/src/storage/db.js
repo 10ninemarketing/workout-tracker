@@ -1,7 +1,7 @@
 import { uid } from '../lib/workout.js'
 
 const KEY = 'wt_v1'
-const SCHEMA_VERSION = 16
+const SCHEMA_VERSION = 17
 
 // Exercises that got renamed after the fact. History keeps a name snapshot per
 // entry, so a rename has to sweep the sessions too or old workouts keep the old label.
@@ -154,6 +154,22 @@ const LIBRARY_FOODS = [
     brand: 'Organic',
     serving: '1 cup (148 g)',
     kcal: 84, protein: 1.1, carbs: 21.4, fat: 0.5,
+  },
+  {
+    // 2 g soluble fiber per serving, nearly all of it beta-glucan - the
+    // reason this is a better carb than rice for the ApoB work.
+    name: 'Oatmeal (dry)',
+    brand: 'Organic',
+    serving: '1/3 cup dry (40 g)',
+    kcal: 160, protein: 6, carbs: 31, fat: 3,
+  },
+  {
+    // 1.1 g saturated fat per tablespoon. Small per serving, and nobody logs
+    // the third coffee.
+    name: 'Half and Half',
+    brand: 'Organic',
+    serving: '1 Tbsp (15 g)',
+    kcal: 20, protein: 0.5, carbs: 0.6, fat: 1.7,
   },
 ]
 
