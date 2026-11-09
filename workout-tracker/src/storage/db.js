@@ -1,7 +1,7 @@
 import { uid } from '../lib/workout.js'
 
 const KEY = 'wt_v1'
-const SCHEMA_VERSION = 18
+const SCHEMA_VERSION = 19
 
 // Exercises that got renamed after the fact. History keeps a name snapshot per
 // entry, so a rename has to sweep the sessions too or old workouts keep the old label.
@@ -172,6 +172,24 @@ const LIBRARY_FOODS = [
     brand: 'Organic',
     serving: '1 Tbsp (15 g)',
     kcal: 20, protein: 0.5, carbs: 0.6, fat: 1.7, satFat: 1.1,
+  },
+  {
+    // Zero saturated fat, and a quarter of a cup replaces four tablespoons
+    // of half and half. Protein was off the bottom of the label; unsweetened
+    // flax milk carries none.
+    name: 'Flax Milk (unsweetened)',
+    brand: '',
+    serving: '1 cup (240 mL)',
+    kcal: 45, protein: 0, carbs: 1, fat: 2.5, satFat: 0,
+  },
+  {
+    // The carbohydrate here is fiber and is not absorbed, so the calories are
+    // nominal. It is in the library for adherence, not for its macros: a day
+    // without a psyllium row is a day the LDL effect did not happen.
+    name: 'Psyllium Husk',
+    brand: '',
+    serving: '1 Tbsp (5 g)',
+    kcal: 15, protein: 0, carbs: 4, fat: 0, satFat: 0,
   },
 ]
 
