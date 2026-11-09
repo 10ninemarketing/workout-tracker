@@ -1,7 +1,7 @@
 import { uid } from '../lib/workout.js'
 
 const KEY = 'wt_v1'
-const SCHEMA_VERSION = 13
+const SCHEMA_VERSION = 14
 
 // Exercises that got renamed after the fact. History keeps a name snapshot per
 // entry, so a rename has to sweep the sessions too or old workouts keep the old label.
@@ -103,6 +103,22 @@ const LIBRARY_FOODS = [
     brand: '',
     serving: '1 large (50 g)',
     kcal: 72, protein: 6.3, carbs: 0.4, fat: 4.8,
+  },
+  {
+    // Raw weight. Meat loses roughly a quarter of its weight cooking, so
+    // weighing a cooked breast against this would undercount by about a third.
+    name: 'Chicken Breast (boneless, skinless)',
+    brand: 'Organic',
+    serving: '4 oz raw (113 g)',
+    kcal: 136, protein: 25.5, carbs: 0, fat: 3,
+  },
+  {
+    // 93/7. Lean percentage swings this by 100 kcal a serving - check the
+    // package and this gets corrected.
+    name: 'Ground Turkey (93/7)',
+    brand: 'Organic',
+    serving: '4 oz raw (112 g)',
+    kcal: 170, protein: 22, carbs: 0, fat: 9,
   },
 ]
 
