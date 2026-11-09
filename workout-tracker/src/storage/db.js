@@ -1,7 +1,7 @@
 import { uid } from '../lib/workout.js'
 
 const KEY = 'wt_v1'
-const SCHEMA_VERSION = 9
+const SCHEMA_VERSION = 10
 
 // Exercises that got renamed after the fact. History keeps a name snapshot per
 // entry, so a rename has to sweep the sessions too or old workouts keep the old label.
@@ -56,10 +56,14 @@ const ADDED_EXERCISES_V7 = [
 // in Settings - these are a starting point, not a verdict.
 export const DEFAULT_TARGETS = { kcal: 2400, protein: 185, carbs: 220, fat: 85 }
 
-// Foods entered from photographs of their labels. Macros are per serving,
-// exactly as printed. Each one is added only if its name is not already in
-// the library, so re-running this never duplicates anything.
-const ADDED_FOODS_V9 = [
+// Foods entered from their labels. Macros are per serving, exactly as printed -
+// no portion sizes here, because what he eats at a sitting is a servings
+// multiplier in the log, not a property of the food.
+//
+// Append to this list and bump SCHEMA_VERSION; the migration adds whatever is
+// missing. Matching is on name plus brand, so it never duplicates and never
+// overwrites an edit made on the phone.
+const LIBRARY_FOODS = [
   {
     name: 'Salmon Burger',
     brand: 'Costco',
@@ -71,6 +75,12 @@ const ADDED_FOODS_V9 = [
     brand: 'Costco',
     serving: '2/3 cup (170 g)',
     kcal: 100, protein: 18, carbs: 7, fat: 0,
+  },
+  {
+    name: 'Canned Salmon',
+    brand: 'Costco',
+    serving: '1/2 can',
+    kcal: 80, protein: 17, carbs: 0, fat: 1.5,
   },
 ]
 
@@ -237,11 +247,11 @@ function migrate(db){
     if (!db.settings.targets) db.settings.targets = { ...DEFAULT_TARGETS }
   }
 
-  if (from < 9){
-    for (const add of ADDED_FOODS_V9){
-      if (!db.foods.some(f => f.name === add.name && (f.brand || '') === (add.brand || ''))){
-        db.foods.push({ id: uid(), ...add, createdAt: nowIso() })
-      }
+  // Runs on every upgrade rather than at one version, so new entries reach a
+  // phone whatever version it was last on.
+  for (const add of LIBRARY_FOODS){
+    if (!db.foods.some(f => f.name === add.name && (f.brand || '') === (add.brand || ''))){
+      db.foods.push({ id: uid(), ...add, createdAt: nowIso() })
     }
   }
 
@@ -330,7 +340,7 @@ export function seedDB(){
     activeProfileId: john.id,
     exercises,
     sessions: [],
-    foods: ADDED_FOODS_V9.map(f => ({ id: uid(), ...f, createdAt: nowIso() })),
+    foods: LIBRARY_FOODS.map(f => ({ id: uid(), ...f, createdAt: nowIso() })),
     foodLog: [],
     weights: []
   }
