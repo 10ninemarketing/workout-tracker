@@ -1,7 +1,7 @@
 import { uid } from '../lib/workout.js'
 
 const KEY = 'wt_v1'
-const SCHEMA_VERSION = 6
+const SCHEMA_VERSION = 7
 
 // Exercises that got renamed after the fact. History keeps a name snapshot per
 // entry, so a rename has to sweep the sessions too or old workouts keep the old label.
@@ -42,6 +42,13 @@ const ADDED_EXERCISES_V3 = [
   { name: 'Walking Lunges', category: 'Legs', equipment: 'Dumbbell' },
   { name: 'Suitcase Carry', category: 'Core', equipment: 'Dumbbell' },
   { name: 'Plank', category: 'Core', equipment: 'Bodyweight' },
+]
+
+// Upper A's heavy vertical pull. Kept separate from the bodyweight sets on
+// Upper B so each has its own progression line - one climbs by added weight,
+// the other by reps.
+const ADDED_EXERCISES_V7 = [
+  { name: 'Weighted Pull-Ups', category: 'Pull', equipment: 'Bodyweight' },
 ]
 
 function nowIso(){
@@ -186,6 +193,14 @@ function migrate(db){
     }
   }
 
+  if (from < 7){
+    for (const add of ADDED_EXERCISES_V7){
+      if (!db.exercises.some(e => e.name === add.name)){
+        db.exercises.push({ id: uid(), ...add, isActive: true, createdAt: nowIso() })
+      }
+    }
+  }
+
   db.version = SCHEMA_VERSION
   saveDB(db)
   return db
@@ -242,6 +257,7 @@ export function seedDB(){
 
     // Day 5 – Pull
     { name: 'Pull-Ups (bodyweight)', category: 'Pull', equipment: 'Bodyweight' },
+    { name: 'Weighted Pull-Ups', category: 'Pull', equipment: 'Bodyweight' },
     { name: 'Assisted Pull-Ups', category: 'Pull', equipment: 'Machine' },
     { name: 'Machine Row', category: 'Pull', equipment: 'Machine' },
     { name: 'Cable Curls', category: 'Biceps', equipment: 'Cable' },
