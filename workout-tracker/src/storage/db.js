@@ -1,7 +1,7 @@
 import { uid } from '../lib/workout.js'
 
 const KEY = 'wt_v1'
-const SCHEMA_VERSION = 12
+const SCHEMA_VERSION = 13
 
 // Exercises that got renamed after the fact. History keeps a name snapshot per
 // entry, so a rename has to sweep the sessions too or old workouts keep the old label.
@@ -96,6 +96,13 @@ const LIBRARY_FOODS = [
     brand: 'Costco',
     serving: '3 Tbsp (46 g)',
     kcal: 25, protein: 5, carbs: 0, fat: 0,
+  },
+  {
+    // USDA reference values, not a label - whole foods do not carry one.
+    name: 'Egg, whole (large)',
+    brand: '',
+    serving: '1 large (50 g)',
+    kcal: 72, protein: 6.3, carbs: 0.4, fat: 4.8,
   },
 ]
 
