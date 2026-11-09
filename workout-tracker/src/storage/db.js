@@ -1,7 +1,7 @@
 import { uid } from '../lib/workout.js'
 
 const KEY = 'wt_v1'
-const SCHEMA_VERSION = 10
+const SCHEMA_VERSION = 11
 
 // Exercises that got renamed after the fact. History keeps a name snapshot per
 // entry, so a rename has to sweep the sessions too or old workouts keep the old label.
@@ -81,6 +81,14 @@ const LIBRARY_FOODS = [
     brand: 'Costco',
     serving: '1/2 can',
     kcal: 80, protein: 17, carbs: 0, fat: 1.5,
+  },
+  {
+    // 2,982 mg leucine per serving - clears the per-meal threshold on its own,
+    // which is the number that actually matters at 48.
+    name: 'Whey Protein (unflavored)',
+    brand: 'Naked Whey',
+    serving: '30 g (about 2 scoops)',
+    kcal: 120, protein: 25, carbs: 3, fat: 2,
   },
 ]
 
