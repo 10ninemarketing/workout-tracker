@@ -1,7 +1,7 @@
 import { uid } from '../lib/workout.js'
 
 const KEY = 'wt_v1'
-const SCHEMA_VERSION = 15
+const SCHEMA_VERSION = 16
 
 // Exercises that got renamed after the fact. History keeps a name snapshot per
 // entry, so a rename has to sweep the sessions too or old workouts keep the old label.
@@ -126,6 +126,34 @@ const LIBRARY_FOODS = [
     brand: 'Organic',
     serving: '4 oz raw (112 g)',
     kcal: 240, protein: 21, carbs: 0, fat: 17,
+  },
+
+  // Carb sources. Servings are whatever can be measured without a scale where
+  // that is possible - a cup of rice, a cup of berries - and 100 g where the
+  // food has no reliable "medium".
+  {
+    name: 'White Rice (cooked)',
+    brand: '',
+    serving: '1 cup cooked (158 g)',
+    kcal: 205, protein: 4.3, carbs: 44.5, fat: 0.4,
+  },
+  {
+    name: 'Sweet Potato (baked, with skin)',
+    brand: '',
+    serving: '100 g',
+    kcal: 90, protein: 2, carbs: 20.7, fat: 0.2,
+  },
+  {
+    name: 'White Potato (baked, with skin)',
+    brand: '',
+    serving: '100 g',
+    kcal: 95, protein: 2.5, carbs: 21.5, fat: 0.1,
+  },
+  {
+    name: 'Blueberries',
+    brand: 'Organic',
+    serving: '1 cup (148 g)',
+    kcal: 84, protein: 1.1, carbs: 21.4, fat: 0.5,
   },
 ]
 
