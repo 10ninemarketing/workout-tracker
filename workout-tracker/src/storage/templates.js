@@ -8,7 +8,7 @@ export const DAY_TEMPLATES = [
     items: [
       { name: 'Face Pulls', sets: 2, reps: '15–20' },
       { name: 'Flat DB Bench (neutral grip)', sets: 3, reps: '6–8' },
-      { name: 'Seated Row (neutral grip)', sets: 3, reps: '6–8' },
+      { name: 'Machine Row', sets: 3, reps: '6–8' },
       { name: 'Incline DB Bench (neutral grip)', sets: 2, reps: '10–12' },
       { name: 'Lat Pulldown', sets: 3, reps: '10–12' },
       { name: 'Lateral Raises (strict, light)', sets: 3, reps: '12–15' },
