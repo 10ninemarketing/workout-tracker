@@ -89,11 +89,11 @@ export default function Settings({ db, api, notify }){
 
   // One file with both tables: intake needs the scale beside it to mean anything.
   function buildFoodCSV(){
-    const rows = [['date', 'food', 'brand', 'serving', 'servings', 'kcal', 'protein', 'carbs', 'fat', 'sat fat']]
+    const rows = [['date', 'food', 'brand', 'serving', 'servings', 'kcal', 'protein', 'carbs', 'fat', 'sat fat', 'fiber', 'soluble fiber']]
     for (const e of rangeFood){
       const q = Number(e.servings) || 0
       const r = v => Math.round((Number(v) || 0) * q * 10) / 10
-      rows.push([e.date, e.foodName, e.brand || '', e.serving || '', String(q), String(r(e.kcal)), String(r(e.protein)), String(r(e.carbs)), String(r(e.fat)), String(r(e.satFat))])
+      rows.push([e.date, e.foodName, e.brand || '', e.serving || '', String(q), String(r(e.kcal)), String(r(e.protein)), String(r(e.carbs)), String(r(e.fat)), String(r(e.satFat)), String(r(e.fiber)), String(r(e.soluble))])
     }
     rows.push([])
     rows.push(['date', 'bodyweight (lb)'])
@@ -235,6 +235,24 @@ export default function Settings({ db, api, notify }){
                 type="number" inputMode="numeric" min="0" className="input num"
                 value={targets.fat ?? ''}
                 onChange={e => api.updateTargets({ fat: Number(e.target.value) || 0 })}
+              />
+            </label>
+          </div>
+          <div className="row2">
+            <label className="field">
+              <span className="field-label">Fiber (g)</span>
+              <input
+                type="number" inputMode="numeric" min="0" className="input num"
+                value={targets.fiber ?? ''}
+                onChange={e => api.updateTargets({ fiber: Number(e.target.value) || 0 })}
+              />
+            </label>
+            <label className="field">
+              <span className="field-label">Soluble fiber (g)</span>
+              <input
+                type="number" inputMode="numeric" min="0" className="input num"
+                value={targets.soluble ?? ''}
+                onChange={e => api.updateTargets({ soluble: Number(e.target.value) || 0 })}
               />
             </label>
           </div>

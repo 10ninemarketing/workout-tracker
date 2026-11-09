@@ -1,7 +1,7 @@
 import { uid } from '../lib/workout.js'
 
 const KEY = 'wt_v1'
-const SCHEMA_VERSION = 19
+const SCHEMA_VERSION = 21
 
 // Exercises that got renamed after the fact. History keeps a name snapshot per
 // entry, so a rename has to sweep the sessions too or old workouts keep the old label.
@@ -56,7 +56,7 @@ const ADDED_EXERCISES_V7 = [
 // in Settings - these are a starting point, not a verdict.
 // satFat is a ceiling, not a goal: ~7% of calories, the threshold the lipid
 // evidence actually uses.
-export const DEFAULT_TARGETS = { kcal: 2400, protein: 185, carbs: 220, fat: 85, satFat: 19 }
+export const DEFAULT_TARGETS = { kcal: 2400, protein: 185, carbs: 220, fat: 85, satFat: 19, fiber: 35, soluble: 10 }
 
 // Foods entered from their labels. Macros are per serving, exactly as printed -
 // no portion sizes here, because what he eats at a sitting is a servings
@@ -70,19 +70,19 @@ const LIBRARY_FOODS = [
     name: 'Salmon Burger',
     brand: 'Costco',
     serving: '1 burger (113 g / 4 oz)',
-    kcal: 170, protein: 20, carbs: 2, fat: 9, satFat: 1,
+    kcal: 170, protein: 20, carbs: 2, fat: 9, satFat: 1, fiber: 0, soluble: 0,
   },
   {
     name: 'Organic Greek Yogurt (nonfat, plain)',
     brand: 'Costco',
     serving: '2/3 cup (170 g)',
-    kcal: 100, protein: 18, carbs: 7, fat: 0, satFat: 0,
+    kcal: 100, protein: 18, carbs: 7, fat: 0, satFat: 0, fiber: 0, soluble: 0,
   },
   {
     name: 'Canned Salmon',
     brand: 'Costco',
     serving: '1/2 can',
-    kcal: 80, protein: 17, carbs: 0, fat: 1.5, satFat: 0.3,
+    kcal: 80, protein: 17, carbs: 0, fat: 1.5, satFat: 0.3, fiber: 0, soluble: 0,
   },
   {
     // 2,982 mg leucine per serving - clears the per-meal threshold on its own,
@@ -90,21 +90,21 @@ const LIBRARY_FOODS = [
     name: 'Whey Protein (unflavored)',
     brand: 'Naked Whey',
     serving: '30 g (about 2 scoops)',
-    kcal: 120, protein: 25, carbs: 3, fat: 2, satFat: 0.5,
+    kcal: 120, protein: 25, carbs: 3, fat: 2, satFat: 0.5, fiber: 0, soluble: 0,
   },
   {
     // The label's serving is small - a cup is about 5.3 of them.
     name: 'Egg Whites',
     brand: 'Costco',
     serving: '3 Tbsp (46 g)',
-    kcal: 25, protein: 5, carbs: 0, fat: 0, satFat: 0,
+    kcal: 25, protein: 5, carbs: 0, fat: 0, satFat: 0, fiber: 0, soluble: 0,
   },
   {
     // USDA reference values, not a label - whole foods do not carry one.
     name: 'Egg, whole (large)',
     brand: '',
     serving: '1 large (50 g)',
-    kcal: 72, protein: 6.3, carbs: 0.4, fat: 4.8, satFat: 1.6,
+    kcal: 72, protein: 6.3, carbs: 0.4, fat: 4.8, satFat: 1.6, fiber: 0, soluble: 0,
   },
   {
     // Raw weight. Meat loses roughly a quarter of its weight cooking, so
@@ -112,14 +112,14 @@ const LIBRARY_FOODS = [
     name: 'Chicken Breast (boneless, skinless)',
     brand: 'Organic',
     serving: '4 oz raw (113 g)',
-    kcal: 136, protein: 25.5, carbs: 0, fat: 3, satFat: 0.7,
+    kcal: 136, protein: 25.5, carbs: 0, fat: 3, satFat: 0.7, fiber: 0, soluble: 0,
   },
   {
     // 93/7, confirmed against the package.
     name: 'Ground Turkey (93/7)',
     brand: 'Organic',
     serving: '4 oz raw (112 g)',
-    kcal: 170, protein: 22, carbs: 0, fat: 9, satFat: 2.3,
+    kcal: 170, protein: 22, carbs: 0, fat: 9, satFat: 2.3, fiber: 0, soluble: 0,
   },
   {
     // 17 g fat in 112 g is 85/15. Nearly two thirds of its calories are fat,
@@ -127,7 +127,7 @@ const LIBRARY_FOODS = [
     name: 'Ground Beef (85/15)',
     brand: 'Organic',
     serving: '4 oz raw (112 g)',
-    kcal: 240, protein: 21, carbs: 0, fat: 17, satFat: 6,
+    kcal: 240, protein: 21, carbs: 0, fat: 17, satFat: 6, fiber: 0, soluble: 0,
   },
 
   // Carb sources. Servings are whatever can be measured without a scale where
@@ -137,25 +137,25 @@ const LIBRARY_FOODS = [
     name: 'White Rice (cooked)',
     brand: '',
     serving: '1 cup cooked (158 g)',
-    kcal: 205, protein: 4.3, carbs: 44.5, fat: 0.4, satFat: 0.1,
+    kcal: 205, protein: 4.3, carbs: 44.5, fat: 0.4, satFat: 0.1, fiber: 0.6, soluble: 0.1,
   },
   {
     name: 'Sweet Potato (baked, with skin)',
     brand: '',
     serving: '100 g',
-    kcal: 90, protein: 2, carbs: 20.7, fat: 0.2, satFat: 0,
+    kcal: 90, protein: 2, carbs: 20.7, fat: 0.2, satFat: 0, fiber: 3.3, soluble: 1.1,
   },
   {
     name: 'White Potato (baked, with skin)',
     brand: '',
     serving: '100 g',
-    kcal: 95, protein: 2.5, carbs: 21.5, fat: 0.1, satFat: 0,
+    kcal: 95, protein: 2.5, carbs: 21.5, fat: 0.1, satFat: 0, fiber: 2.1, soluble: 0.6,
   },
   {
     name: 'Blueberries',
     brand: 'Organic',
     serving: '1 cup (148 g)',
-    kcal: 84, protein: 1.1, carbs: 21.4, fat: 0.5, satFat: 0,
+    kcal: 84, protein: 1.1, carbs: 21.4, fat: 0.5, satFat: 0, fiber: 3.6, soluble: 0.3,
   },
   {
     // 2 g soluble fiber per serving, nearly all of it beta-glucan - the
@@ -163,7 +163,7 @@ const LIBRARY_FOODS = [
     name: 'Oatmeal (dry)',
     brand: 'Organic',
     serving: '1/3 cup dry (40 g)',
-    kcal: 160, protein: 6, carbs: 31, fat: 3, satFat: 0.5,
+    kcal: 160, protein: 6, carbs: 31, fat: 3, satFat: 0.5, fiber: 4, soluble: 2,
   },
   {
     // 1.1 g saturated fat per tablespoon. Small per serving, and nobody logs
@@ -171,16 +171,17 @@ const LIBRARY_FOODS = [
     name: 'Half and Half',
     brand: 'Organic',
     serving: '1 Tbsp (15 g)',
-    kcal: 20, protein: 0.5, carbs: 0.6, fat: 1.7, satFat: 1.1,
+    kcal: 20, protein: 0.5, carbs: 0.6, fat: 1.7, satFat: 1.1, fiber: 0, soluble: 0,
   },
   {
     // Zero saturated fat, and a quarter of a cup replaces four tablespoons
-    // of half and half. Protein was off the bottom of the label; unsweetened
-    // flax milk carries none.
+    // of half and half. This is a protein-fortified flax milk - 5 g a cup,
+    // which plain flax milk does not have, and which is the only way 45 kcal
+    // reconciles with 2.5 g of fat and 1 g of carbohydrate.
     name: 'Flax Milk (unsweetened)',
     brand: '',
     serving: '1 cup (240 mL)',
-    kcal: 45, protein: 0, carbs: 1, fat: 2.5, satFat: 0,
+    kcal: 45, protein: 5, carbs: 1, fat: 2.5, satFat: 0, fiber: 0, soluble: 0,
   },
   {
     // The carbohydrate here is fiber and is not absorbed, so the calories are
@@ -189,7 +190,7 @@ const LIBRARY_FOODS = [
     name: 'Psyllium Husk',
     brand: '',
     serving: '1 Tbsp (5 g)',
-    kcal: 15, protein: 0, carbs: 4, fat: 0, satFat: 0,
+    kcal: 15, protein: 0, carbs: 4, fat: 0, satFat: 0, fiber: 4, soluble: 3.5,
   },
 ]
 
@@ -371,6 +372,24 @@ function migrate(db){
     for (const known of LIBRARY_FOODS){
       const food = db.foods.find(f => f.name === known.name && (f.brand || '') === (known.brand || ''))
       if (food && food.satFat == null) food.satFat = known.satFat
+    }
+  }
+
+  if (from < 20){
+    // Flax milk went in at 0 g protein, read off a label photo that cut off
+    // before the protein line. Correct it, unless it was edited on the phone.
+    const flax = db.foods.find(f => f.name === 'Flax Milk (unsweetened)')
+    if (flax && !flax.protein) flax.protein = 5
+  }
+
+  if (from < 21){
+    if (!db.settings.targets.fiber) db.settings.targets.fiber = DEFAULT_TARGETS.fiber
+    if (!db.settings.targets.soluble) db.settings.targets.soluble = DEFAULT_TARGETS.soluble
+    for (const known of LIBRARY_FOODS){
+      const food = db.foods.find(f => f.name === known.name && (f.brand || '') === (known.brand || ''))
+      if (!food) continue
+      if (food.fiber == null) food.fiber = known.fiber
+      if (food.soluble == null) food.soluble = known.soluble
     }
   }
 

@@ -44,6 +44,8 @@ export default function Food({ db, api, notify }){
       carbs: num(food.carbs),
       fat: num(food.fat),
       satFat: num(food.satFat),
+      fiber: num(food.fiber),
+      soluble: num(food.soluble),
       createdAt: new Date().toISOString()
     })
     setPicking(false)
@@ -105,10 +107,10 @@ export default function Food({ db, api, notify }){
             // A limit is breached the moment it is passed; a goal gets slack
             const over = want > 0 && got > want * (m.limit ? 1 : 1.05)
             return (
-              <div key={m.key} className={`macro${m.sub ? ' macro-sub' : ''}`}>
+              <div key={m.key} className={`macro${m.sub ? ` macro-sub macro-sub${m.sub}` : ''}`}>
                 <div className="macro-top">
                   <span className="macro-label">
-                    {m.sub && <span className="macro-branch" aria-hidden="true" />}
+                    {m.sub === 1 && <span className="macro-branch" aria-hidden="true" />}
                     {m.label}
                     {m.limit && <span className="macro-cap"> limit</span>}
                   </span>
@@ -143,7 +145,8 @@ export default function Food({ db, api, notify }){
                   <span className="row-sub">
                     {e.brand ? `${e.brand} · ` : ''}{e.serving || 'serving'}
                     {' · '}{fmt(m.protein)}p {fmt(m.carbs)}c {fmt(m.fat)}f
-                    {m.satFat >= 1 && <span className="sat-flag"> {fmt(m.satFat)}g sat</span>}
+                    {m.satFat >= 1 && <span className="sat-flag"> · {fmt(m.satFat)}g sat</span>}
+                    {m.soluble >= 1 && <span className="sol-flag"> · {round(m.soluble, 1)}g soluble</span>}
                   </span>
                 </span>
                 <input
@@ -271,7 +274,7 @@ function FoodPicker({ open, onClose, db, api, onPick, onNew, onEdit }){
   )
 }
 
-const BLANK = { name: '', brand: '', serving: '', kcal: '', protein: '', carbs: '', fat: '', satFat: '' }
+const BLANK = { name: '', brand: '', serving: '', kcal: '', protein: '', carbs: '', fat: '', satFat: '', fiber: '', soluble: '' }
 
 function FoodForm({ open, food, onClose, onSave, onDelete }){
   const isNew = !food?.id
@@ -312,6 +315,8 @@ function FoodForm({ open, food, onClose, onSave, onDelete }){
       carbs: num(form.carbs),
       fat: num(form.fat),
       satFat: num(form.satFat),
+      fiber: num(form.fiber),
+      soluble: num(form.soluble),
       createdAt: food?.createdAt || new Date().toISOString()
     })
   }
@@ -319,8 +324,12 @@ function FoodForm({ open, food, onClose, onSave, onDelete }){
   const macroProps = { type: 'number', inputMode: 'decimal', min: '0', placeholder: '0' }
   const computed = num(form.protein) * 4 + num(form.carbs) * 4 + num(form.fat) * 9
   const stated = num(form.kcal)
-  const mismatch = stated > 0 && computed > 0 && Math.abs(stated - computed) > Math.max(25, stated * 0.12)
+  // Floor of 15, not 25: a 45 kcal item can be wrong by 70% and still sit
+  // under a 25 kcal absolute tolerance, which is how the flax milk slipped by.
+  const mismatch = stated > 0 && computed > 0 && Math.abs(stated - computed) > Math.max(15, stated * 0.15)
   const satTooHigh = num(form.satFat) > num(form.fat)
+  const solTooHigh = num(form.soluble) > num(form.fiber)
+  const fiberTooHigh = num(form.fiber) > num(form.carbs)
 
   return (
     <Sheet open={open} onClose={onClose} title={isNew ? 'New food' : form.name || 'Food'} full>
@@ -339,10 +348,26 @@ function FoodForm({ open, food, onClose, onSave, onDelete }){
           {field('fat', 'Fat (g)', macroProps)}
         </div>
         {field('satFat', 'of which saturated (g)', macroProps)}
+        <div className="row2">
+          {field('fiber', 'Fiber (g)', macroProps)}
+          {field('soluble', 'of which soluble (g)', macroProps)}
+        </div>
 
         {satTooHigh && (
           <p className="footnote danger-text">
             Saturated fat is part of total fat, so it cannot be the larger of the two.
+          </p>
+        )}
+
+        {fiberTooHigh && (
+          <p className="footnote danger-text">
+            Fiber is part of total carbohydrate and cannot exceed it.
+          </p>
+        )}
+
+        {solTooHigh && (
+          <p className="footnote danger-text">
+            Soluble fiber is part of total fiber and cannot exceed it.
           </p>
         )}
 

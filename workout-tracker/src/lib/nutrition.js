@@ -9,8 +9,10 @@ export const MACROS = [
   { key: 'kcal', label: 'Calories', unit: '' },
   { key: 'protein', label: 'Protein', unit: 'g' },
   { key: 'carbs', label: 'Carbs', unit: 'g' },
+  { key: 'fiber', label: 'Fiber', unit: 'g', sub: 1 },
+  { key: 'soluble', label: 'of which soluble', unit: 'g', sub: 2 },
   { key: 'fat', label: 'Fat', unit: 'g' },
-  { key: 'satFat', label: 'Saturated', unit: 'g', sub: true, limit: true },
+  { key: 'satFat', label: 'Saturated', unit: 'g', sub: 1, limit: true },
 ]
 
 export function num(v){
@@ -28,6 +30,8 @@ export function entryMacros(entry){
     carbs: num(entry.carbs) * s,
     fat: num(entry.fat) * s,
     satFat: num(entry.satFat) * s,
+    fiber: num(entry.fiber) * s,
+    soluble: num(entry.soluble) * s,
   }
 }
 
@@ -40,8 +44,10 @@ export function sumMacros(entries){
       carbs: total.carbs + m.carbs,
       fat: total.fat + m.fat,
       satFat: total.satFat + m.satFat,
+      fiber: total.fiber + m.fiber,
+      soluble: total.soluble + m.soluble,
     }
-  }, { kcal: 0, protein: 0, carbs: 0, fat: 0, satFat: 0 })
+  }, { kcal: 0, protein: 0, carbs: 0, fat: 0, satFat: 0, fiber: 0, soluble: 0 })
 }
 
 export function logForDate(db, date){
