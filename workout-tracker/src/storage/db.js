@@ -1,7 +1,7 @@
 import { uid } from '../lib/workout.js'
 
 const KEY = 'wt_v1'
-const SCHEMA_VERSION = 14
+const SCHEMA_VERSION = 15
 
 // Exercises that got renamed after the fact. History keeps a name snapshot per
 // entry, so a rename has to sweep the sessions too or old workouts keep the old label.
@@ -113,12 +113,19 @@ const LIBRARY_FOODS = [
     kcal: 136, protein: 25.5, carbs: 0, fat: 3,
   },
   {
-    // 93/7. Lean percentage swings this by 100 kcal a serving - check the
-    // package and this gets corrected.
+    // 93/7, confirmed against the package.
     name: 'Ground Turkey (93/7)',
     brand: 'Organic',
     serving: '4 oz raw (112 g)',
     kcal: 170, protein: 22, carbs: 0, fat: 9,
+  },
+  {
+    // 17 g fat in 112 g is 85/15. Nearly two thirds of its calories are fat,
+    // which makes this a fat source that carries protein, not a protein source.
+    name: 'Ground Beef (85/15)',
+    brand: 'Organic',
+    serving: '4 oz raw (112 g)',
+    kcal: 240, protein: 21, carbs: 0, fat: 17,
   },
 ]
 
