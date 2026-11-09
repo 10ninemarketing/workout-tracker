@@ -20,6 +20,8 @@ export default function Settings({ db, api, notify }){
   })
   const [end, setEnd] = useState(todayInput())
   const shareable = useMemo(() => canShareFiles(), [])
+  const targets = db.settings.targets || {}
+  const macroKcal = (Number(targets.protein) || 0) * 4 + (Number(targets.carbs) || 0) * 4 + (Number(targets.fat) || 0) * 9
   const [restoreOpen, setRestoreOpen] = useState(false)
   const [restoreText, setRestoreText] = useState('')
 
@@ -67,6 +69,52 @@ export default function Settings({ db, api, notify }){
       dateRange: { start, end },
       sessions: rangeSessions
     }, null, 2)
+  }
+
+  const rangeFood = useMemo(() => {
+    return db.foodLog
+      .filter(e => e.profileId === db.activeProfileId)
+      .filter(e => e.date >= start && e.date <= end)
+      .slice()
+      .sort((a, b) => (a.date === b.date ? (a.createdAt < b.createdAt ? -1 : 1) : (a.date < b.date ? -1 : 1)))
+  }, [db.foodLog, db.activeProfileId, start, end])
+
+  const rangeWeights = useMemo(() => {
+    return db.weights
+      .filter(w => w.profileId === db.activeProfileId)
+      .filter(w => w.date >= start && w.date <= end)
+      .slice()
+      .sort((a, b) => (a.date < b.date ? -1 : 1))
+  }, [db.weights, db.activeProfileId, start, end])
+
+  // One file with both tables: intake needs the scale beside it to mean anything.
+  function buildFoodCSV(){
+    const rows = [['date', 'food', 'brand', 'serving', 'servings', 'kcal', 'protein', 'carbs', 'fat']]
+    for (const e of rangeFood){
+      const q = Number(e.servings) || 0
+      const r = v => Math.round((Number(v) || 0) * q * 10) / 10
+      rows.push([e.date, e.foodName, e.brand || '', e.serving || '', String(q), String(r(e.kcal)), String(r(e.protein)), String(r(e.carbs)), String(r(e.fat))])
+    }
+    rows.push([])
+    rows.push(['date', 'bodyweight (lb)'])
+    for (const w of rangeWeights) rows.push([w.date, String(w.lbs ?? '')])
+    return toCSV(rows)
+  }
+
+  const foodCsvName = `food-${start}-to-${end}.csv`
+
+  function exportFoodCSV(){
+    downloadFile({ content: buildFoodCSV(), mime: 'text/csv', filename: foodCsvName })
+  }
+
+  async function copyFoodCSV(){
+    const ok = await copyText(buildFoodCSV())
+    notify(ok ? 'Food log copied' : 'Could not copy')
+  }
+
+  async function shareFoodCSV(){
+    const ok = await shareFile({ content: buildFoodCSV(), mime: 'text/csv', filename: foodCsvName })
+    if (!ok) exportFoodCSV()
   }
 
   const csvName = `workouts-${start}-to-${end}.csv`
@@ -152,6 +200,51 @@ export default function Settings({ db, api, notify }){
       </section>
 
       <section>
+        <div className="section-label">Daily targets</div>
+        <div className="card vstack">
+          <div className="row2">
+            <label className="field">
+              <span className="field-label">Calories</span>
+              <input
+                type="number" inputMode="numeric" min="0" className="input num"
+                value={targets.kcal ?? ''}
+                onChange={e => api.updateTargets({ kcal: Number(e.target.value) || 0 })}
+              />
+            </label>
+            <label className="field">
+              <span className="field-label">Protein (g)</span>
+              <input
+                type="number" inputMode="numeric" min="0" className="input num"
+                value={targets.protein ?? ''}
+                onChange={e => api.updateTargets({ protein: Number(e.target.value) || 0 })}
+              />
+            </label>
+          </div>
+          <div className="row2">
+            <label className="field">
+              <span className="field-label">Carbs (g)</span>
+              <input
+                type="number" inputMode="numeric" min="0" className="input num"
+                value={targets.carbs ?? ''}
+                onChange={e => api.updateTargets({ carbs: Number(e.target.value) || 0 })}
+              />
+            </label>
+            <label className="field">
+              <span className="field-label">Fat (g)</span>
+              <input
+                type="number" inputMode="numeric" min="0" className="input num"
+                value={targets.fat ?? ''}
+                onChange={e => api.updateTargets({ fat: Number(e.target.value) || 0 })}
+              />
+            </label>
+          </div>
+          <div className="muted small">
+            These macros add up to {macroKcal.toLocaleString()} kcal{Math.abs(macroKcal - (Number(targets.kcal) || 0)) > 40 ? `, which is off your calorie target by ${Math.abs(macroKcal - (Number(targets.kcal) || 0)).toLocaleString()}.` : '.'}
+          </div>
+        </div>
+      </section>
+
+      <section>
         <div className="section-label">Export workouts</div>
         <div className="card vstack">
           <div className="row2">
@@ -186,6 +279,29 @@ export default function Settings({ db, api, notify }){
           <div className="muted small">
             Copy drops the whole range on your clipboard as text. Share hands the file to AirDrop, Mail or Files.
           </div>
+        </div>
+      </section>
+
+      <section>
+        <div className="section-label">Export food</div>
+        <div className="card vstack">
+          <div className="muted small">
+            {rangeFood.length === 0 ? 'Nothing logged in this range yet.' : `${rangeFood.length} entries and ${rangeWeights.length} weigh-ins, same date range as above`}
+          </div>
+          <div className="row2">
+            <button className="btn" onClick={exportFoodCSV} disabled={rangeFood.length === 0 && rangeWeights.length === 0}>
+              <Icon name="download" size={18} /> CSV
+            </button>
+            <button className="btn" onClick={copyFoodCSV} disabled={rangeFood.length === 0 && rangeWeights.length === 0}>
+              <Icon name="copy" size={18} /> Copy CSV
+            </button>
+          </div>
+          {shareable && (
+            <button className="btn btn-block" onClick={shareFoodCSV} disabled={rangeFood.length === 0 && rangeWeights.length === 0}>
+              <Icon name="share" size={18} /> Share
+            </button>
+          )}
+          <div className="muted small">Intake and the scale in one file, so the two can be read against each other.</div>
         </div>
       </section>
 

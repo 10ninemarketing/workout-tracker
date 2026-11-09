@@ -5,6 +5,7 @@ import Dashboard from './screens/Dashboard.jsx'
 import History from './screens/History.jsx'
 import LogWorkout from './screens/LogWorkout.jsx'
 import Exercises from './screens/Exercises.jsx'
+import Food from './screens/Food.jsx'
 import Settings from './screens/Settings.jsx'
 import { useDB } from './storage/useDB.js'
 import { useDraft } from './storage/useDraft.js'
@@ -87,6 +88,7 @@ export default function App(){
         {tab === 'dashboard' && <Dashboard {...shared} profile={activeProfile} />}
         {tab === 'history' && <History {...shared} />}
         {tab === 'log' && <LogWorkout {...shared} />}
+        {tab === 'food' && <Food {...shared} />}
         {tab === 'exercises' && <Exercises {...shared} />}
         {tab === 'settings' && <Settings {...shared} />}
       </main>

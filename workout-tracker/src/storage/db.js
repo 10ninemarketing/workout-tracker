@@ -1,7 +1,7 @@
 import { uid } from '../lib/workout.js'
 
 const KEY = 'wt_v1'
-const SCHEMA_VERSION = 7
+const SCHEMA_VERSION = 8
 
 // Exercises that got renamed after the fact. History keeps a name snapshot per
 // entry, so a rename has to sweep the sessions too or old workouts keep the old label.
@@ -51,6 +51,11 @@ const ADDED_EXERCISES_V7 = [
   { name: 'Weighted Pull-Ups', category: 'Pull', equipment: 'Bodyweight' },
 ]
 
+// Cut-phase numbers: ~400 under an estimated 2,800 maintenance, protein at
+// 1.0 g/lb of bodyweight, fat high enough to leave hormones alone. Editable
+// in Settings - these are a starting point, not a verdict.
+export const DEFAULT_TARGETS = { kcal: 2400, protein: 185, carbs: 220, fat: 85 }
+
 function nowIso(){
   return new Date().toISOString()
 }
@@ -66,6 +71,9 @@ export function loadDB(){
     if (!Array.isArray(parsed.exercises)) parsed.exercises = []
     if (!Array.isArray(parsed.sessions)) parsed.sessions = []
     if (!parsed.settings) parsed.settings = { units: 'lb' }
+    if (!Array.isArray(parsed.foods)) parsed.foods = []
+    if (!Array.isArray(parsed.foodLog)) parsed.foodLog = []
+    if (!Array.isArray(parsed.weights)) parsed.weights = []
     if (!parsed.activeProfileId) parsed.activeProfileId = parsed.profiles[0]?.id || null
     return migrate(parsed)
   }catch{
@@ -201,6 +209,16 @@ function migrate(db){
     }
   }
 
+  if (from < 8){
+    // Food and bodyweight. Each log row carries its own macro snapshot, the
+    // same way a session entry carries its exercise name: editing a food later
+    // must not rewrite what you already ate.
+    if (!Array.isArray(db.foods)) db.foods = []
+    if (!Array.isArray(db.foodLog)) db.foodLog = []
+    if (!Array.isArray(db.weights)) db.weights = []
+    if (!db.settings.targets) db.settings.targets = { ...DEFAULT_TARGETS }
+  }
+
   db.version = SCHEMA_VERSION
   saveDB(db)
   return db
@@ -281,11 +299,14 @@ export function seedDB(){
 
   const db = {
     version: SCHEMA_VERSION,
-    settings: { units: 'lb' },
+    settings: { units: 'lb', targets: { ...DEFAULT_TARGETS } },
     profiles: [john],
     activeProfileId: john.id,
     exercises,
-    sessions: []
+    sessions: [],
+    foods: [],
+    foodLog: [],
+    weights: []
   }
   saveDB(db)
   return db

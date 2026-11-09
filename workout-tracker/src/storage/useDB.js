@@ -57,6 +57,44 @@ export function useDB(){
     updateSettings(settings){
       setDb(d=>({ ...d, settings: { ...d.settings, ...settings } }))
     },
+    upsertFood(food){
+      setDb(d=>{
+        const exists = d.foods.some(f=>f.id === food.id)
+        const foods = exists
+          ? d.foods.map(f=>f.id === food.id ? { ...f, ...food } : f)
+          : [...d.foods, food]
+        return { ...d, foods }
+      })
+    },
+    deleteFood(id){
+      // The log keeps its own macro snapshot per row, so deleting a food
+      // leaves every day you already ate it intact.
+      setDb(d=>({ ...d, foods: d.foods.filter(f=>f.id !== id) }))
+    },
+    addFoodLog(entry){
+      setDb(d=>({ ...d, foodLog: [...d.foodLog, entry] }))
+    },
+    updateFoodLog(id, patch){
+      setDb(d=>({ ...d, foodLog: d.foodLog.map(e=>e.id === id ? { ...e, ...patch } : e) }))
+    },
+    deleteFoodLog(id){
+      setDb(d=>({ ...d, foodLog: d.foodLog.filter(e=>e.id !== id) }))
+    },
+    setWeight({ profileId, date, lbs, id }){
+      setDb(d=>{
+        const existing = d.weights.find(w=>w.profileId === profileId && w.date === date)
+        if (lbs === '' || lbs == null){
+          return { ...d, weights: d.weights.filter(w=>!(w.profileId === profileId && w.date === date)) }
+        }
+        const weights = existing
+          ? d.weights.map(w=>w === existing ? { ...w, lbs } : w)
+          : [...d.weights, { id, profileId, date, lbs, createdAt: new Date().toISOString() }]
+        return { ...d, weights }
+      })
+    },
+    updateTargets(targets){
+      setDb(d=>({ ...d, settings: { ...d.settings, targets: { ...d.settings.targets, ...targets } } }))
+    },
     exportJSON(){
       return JSON.stringify(db, null, 2)
     },
@@ -66,6 +104,10 @@ export function useDB(){
       if (!parsed || !Array.isArray(parsed.profiles) || !Array.isArray(parsed.exercises) || !Array.isArray(parsed.sessions)){
         throw new Error('Not a full backup')
       }
+      // Backups taken before food logging existed have no food arrays
+      if (!Array.isArray(parsed.foods)) parsed.foods = []
+      if (!Array.isArray(parsed.foodLog)) parsed.foodLog = []
+      if (!Array.isArray(parsed.weights)) parsed.weights = []
       setDb(parsed)
     }
   }), [db])

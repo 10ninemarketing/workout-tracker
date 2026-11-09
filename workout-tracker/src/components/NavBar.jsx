@@ -3,8 +3,9 @@ import { Icon } from './Icons.jsx'
 
 const ITEMS = [
   { key: 'dashboard', label: 'Home', icon: 'home' },
-  { key: 'history', label: 'History', icon: 'clock' },
   { key: 'log', label: 'Workout', icon: 'dumbbell' },
+  { key: 'food', label: 'Food', icon: 'apple' },
+  { key: 'history', label: 'History', icon: 'clock' },
   { key: 'exercises', label: 'Exercises', icon: 'list' },
   { key: 'settings', label: 'Settings', icon: 'sliders' }
 ]
