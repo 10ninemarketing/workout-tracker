@@ -89,11 +89,11 @@ export default function Settings({ db, api, notify }){
 
   // One file with both tables: intake needs the scale beside it to mean anything.
   function buildFoodCSV(){
-    const rows = [['date', 'food', 'brand', 'serving', 'servings', 'kcal', 'protein', 'carbs', 'fat']]
+    const rows = [['date', 'food', 'brand', 'serving', 'servings', 'kcal', 'protein', 'carbs', 'fat', 'sat fat']]
     for (const e of rangeFood){
       const q = Number(e.servings) || 0
       const r = v => Math.round((Number(v) || 0) * q * 10) / 10
-      rows.push([e.date, e.foodName, e.brand || '', e.serving || '', String(q), String(r(e.kcal)), String(r(e.protein)), String(r(e.carbs)), String(r(e.fat))])
+      rows.push([e.date, e.foodName, e.brand || '', e.serving || '', String(q), String(r(e.kcal)), String(r(e.protein)), String(r(e.carbs)), String(r(e.fat)), String(r(e.satFat))])
     }
     rows.push([])
     rows.push(['date', 'bodyweight (lb)'])
@@ -238,6 +238,14 @@ export default function Settings({ db, api, notify }){
               />
             </label>
           </div>
+          <label className="field">
+            <span className="field-label">Saturated fat limit (g)</span>
+            <input
+              type="number" inputMode="numeric" min="0" className="input num"
+              value={targets.satFat ?? ''}
+              onChange={e => api.updateTargets({ satFat: Number(e.target.value) || 0 })}
+            />
+          </label>
           <div className="muted small">
             These macros add up to {macroKcal.toLocaleString()} kcal{Math.abs(macroKcal - (Number(targets.kcal) || 0)) > 40 ? `, which is off your calorie target by ${Math.abs(macroKcal - (Number(targets.kcal) || 0)).toLocaleString()}.` : '.'}
           </div>

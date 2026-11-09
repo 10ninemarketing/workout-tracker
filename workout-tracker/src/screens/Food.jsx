@@ -43,6 +43,7 @@ export default function Food({ db, api, notify }){
       protein: num(food.protein),
       carbs: num(food.carbs),
       fat: num(food.fat),
+      satFat: num(food.satFat),
       createdAt: new Date().toISOString()
     })
     setPicking(false)
@@ -101,11 +102,16 @@ export default function Food({ db, api, notify }){
             const got = totals[m.key]
             const want = num(targets[m.key])
             const pct = want > 0 ? Math.min(100, (got / want) * 100) : 0
-            const over = want > 0 && got > want * 1.05
+            // A limit is breached the moment it is passed; a goal gets slack
+            const over = want > 0 && got > want * (m.limit ? 1 : 1.05)
             return (
-              <div key={m.key} className="macro">
+              <div key={m.key} className={`macro${m.sub ? ' macro-sub' : ''}`}>
                 <div className="macro-top">
-                  <span className="macro-label">{m.label}</span>
+                  <span className="macro-label">
+                    {m.sub && <span className="macro-branch" aria-hidden="true" />}
+                    {m.label}
+                    {m.limit && <span className="macro-cap"> limit</span>}
+                  </span>
                   <span className="macro-value num">{fmt(got)}<span className="faint"> / {fmt(want)}{m.unit}</span></span>
                 </div>
                 <div className="macro-track">
@@ -137,6 +143,7 @@ export default function Food({ db, api, notify }){
                   <span className="row-sub">
                     {e.brand ? `${e.brand} · ` : ''}{e.serving || 'serving'}
                     {' · '}{fmt(m.protein)}p {fmt(m.carbs)}c {fmt(m.fat)}f
+                    {m.satFat >= 1 && <span className="sat-flag"> {fmt(m.satFat)}g sat</span>}
                   </span>
                 </span>
                 <input
@@ -264,7 +271,7 @@ function FoodPicker({ open, onClose, db, api, onPick, onNew, onEdit }){
   )
 }
 
-const BLANK = { name: '', brand: '', serving: '', kcal: '', protein: '', carbs: '', fat: '' }
+const BLANK = { name: '', brand: '', serving: '', kcal: '', protein: '', carbs: '', fat: '', satFat: '' }
 
 function FoodForm({ open, food, onClose, onSave, onDelete }){
   const isNew = !food?.id
@@ -304,6 +311,7 @@ function FoodForm({ open, food, onClose, onSave, onDelete }){
       protein: num(form.protein),
       carbs: num(form.carbs),
       fat: num(form.fat),
+      satFat: num(form.satFat),
       createdAt: food?.createdAt || new Date().toISOString()
     })
   }
@@ -312,6 +320,7 @@ function FoodForm({ open, food, onClose, onSave, onDelete }){
   const computed = num(form.protein) * 4 + num(form.carbs) * 4 + num(form.fat) * 9
   const stated = num(form.kcal)
   const mismatch = stated > 0 && computed > 0 && Math.abs(stated - computed) > Math.max(25, stated * 0.12)
+  const satTooHigh = num(form.satFat) > num(form.fat)
 
   return (
     <Sheet open={open} onClose={onClose} title={isNew ? 'New food' : form.name || 'Food'} full>
@@ -329,6 +338,13 @@ function FoodForm({ open, food, onClose, onSave, onDelete }){
           {field('carbs', 'Carbs (g)', macroProps)}
           {field('fat', 'Fat (g)', macroProps)}
         </div>
+        {field('satFat', 'of which saturated (g)', macroProps)}
+
+        {satTooHigh && (
+          <p className="footnote danger-text">
+            Saturated fat is part of total fat, so it cannot be the larger of the two.
+          </p>
+        )}
 
         {mismatch && (
           <p className="footnote danger-text">

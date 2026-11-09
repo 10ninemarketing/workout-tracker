@@ -410,3 +410,16 @@ input[type="date"].input::-webkit-date-and-time-value{ text-align:left; }
   flex:none; width:62px; min-height:40px; padding:0 8px;
   text-align:center; font-weight:600; border-radius:12px;
 }
+
+.macro-sub{ margin-top:-4px; padding-left:14px; }
+.macro-sub .macro-label, .macro-sub .macro-value{ font-size:13px; }
+.macro-sub .macro-track{ height:5px; }
+.macro-branch{
+  display:inline-block; width:8px; height:7px; margin-right:7px;
+  border-left:1.5px solid var(--line-strong);
+  border-bottom:1.5px solid var(--line-strong);
+  border-bottom-left-radius:3px;
+  transform:translateY(-2px);
+}
+.macro-cap{ color:var(--text-3); font-weight:600; }
+.sat-flag{ color:var(--text-3); }

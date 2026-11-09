@@ -3,11 +3,14 @@
 // whatever the package says ("1 fillet", "100 g", "2 tbsp") and the macros are
 // read straight off the label. Entering the label once is the only typing.
 
+// satFat is a component of fat, not a fifth macro - it renders indented under
+// it, and its number is a ceiling rather than something to fill.
 export const MACROS = [
   { key: 'kcal', label: 'Calories', unit: '' },
   { key: 'protein', label: 'Protein', unit: 'g' },
   { key: 'carbs', label: 'Carbs', unit: 'g' },
   { key: 'fat', label: 'Fat', unit: 'g' },
+  { key: 'satFat', label: 'Saturated', unit: 'g', sub: true, limit: true },
 ]
 
 export function num(v){
@@ -24,6 +27,7 @@ export function entryMacros(entry){
     protein: num(entry.protein) * s,
     carbs: num(entry.carbs) * s,
     fat: num(entry.fat) * s,
+    satFat: num(entry.satFat) * s,
   }
 }
 
@@ -35,8 +39,9 @@ export function sumMacros(entries){
       protein: total.protein + m.protein,
       carbs: total.carbs + m.carbs,
       fat: total.fat + m.fat,
+      satFat: total.satFat + m.satFat,
     }
-  }, { kcal: 0, protein: 0, carbs: 0, fat: 0 })
+  }, { kcal: 0, protein: 0, carbs: 0, fat: 0, satFat: 0 })
 }
 
 export function logForDate(db, date){
