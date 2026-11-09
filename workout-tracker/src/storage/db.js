@@ -1,7 +1,7 @@
 import { uid } from '../lib/workout.js'
 
 const KEY = 'wt_v1'
-const SCHEMA_VERSION = 22
+const SCHEMA_VERSION = 23
 
 // Exercises that got renamed after the fact. History keeps a name snapshot per
 // entry, so a rename has to sweep the sessions too or old workouts keep the old label.
@@ -191,6 +191,14 @@ const LIBRARY_FOODS = [
     brand: '',
     serving: '1 Tbsp (5 g)',
     kcal: 15, protein: 0, carbs: 4, fat: 0, satFat: 0, fiber: 4, soluble: 3.5,
+  },
+  {
+    // Judge this against a potato chip, not against the salmon. Soluble fiber
+    // is a conservative guess - the label gives total only.
+    name: 'Buffalo Chips',
+    brand: 'Wilde',
+    serving: '25 chips (30 g)',
+    kcal: 160, protein: 10, carbs: 8, fat: 10, satFat: 1, fiber: 2, soluble: 0.3,
   },
 ]
 
