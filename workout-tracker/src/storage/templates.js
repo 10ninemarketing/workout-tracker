@@ -6,20 +6,24 @@
 // weight only moves once the top of the range holds on every set. Two years of
 // shoulder trouble is reason enough to buy the stimulus with reps.
 //
-// Vertical pulling is pull-ups on both upper days - weighted and heavy on A,
-// bodyweight for volume on B. The lat pulldown is gone. It was stalled for two
-// years while the same man did ten strict pull-ups, so it was never the lift
-// that was limiting him.
+// Vertical pulling twice a week: the pulldown on A, pull-ups on B. Both climb
+// by reps - no weighted pull-ups, because going 0 to 10 reps in two years is a
+// lift that is already progressing and does not need fixing.
+//
+// The pulldown sits second, before any other back work. It has been stalled
+// for two years, and for two years it has also been run late in the session.
+// Nobody has ever tested it fresh. That is the experiment, and the row pays
+// for it by dropping one slot.
 export const DAY_TEMPLATES = [
   {
     key: 'upper_a',
     label: 'Upper A – Heavy',
     items: [
       { name: 'Face Pulls', sets: 2, reps: '20–25' },
+      { name: 'Lat Pulldown', sets: 3, reps: '8–10' },
       { name: 'Smith Flat Press', sets: 3, reps: '6–8' },
       { name: 'Machine Row', sets: 3, reps: '6–8' },
       { name: 'Incline DB Bench (neutral grip)', sets: 2, reps: '10–12' },
-      { name: 'Weighted Pull-Ups', sets: 3, reps: '5–8' },
       { name: 'Lateral Raises (strict, light)', sets: 3, reps: '15–20' },
       { name: 'Incline DB Curls', sets: 2, reps: '10–12' },
       { name: 'Cable Rope Pushdowns', sets: 2, reps: '10–12' },
@@ -43,7 +47,7 @@ export const DAY_TEMPLATES = [
     items: [
       { name: 'Cable External Rotations', sets: 2, reps: '15' },
       { name: 'Cable Chest Press (low→mid angle)', sets: 3, reps: '10–12' },
-      { name: 'Pull-Ups (bodyweight)', sets: 4, reps: '6–10' },
+      { name: 'Pull-Ups (bodyweight)', sets: 4, reps: '6–12' },
       { name: 'Chest-Supported DB Row (1-arm)', sets: 3, reps: '10–12' },
       { name: 'DB Neutral-Grip High-Incline Press (~60°)', sets: 2, reps: '10–12' },
       { name: 'Cable Y-Raise', sets: 2, reps: '15–20' },
