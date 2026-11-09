@@ -1,7 +1,7 @@
 import { uid } from '../lib/workout.js'
 
 const KEY = 'wt_v1'
-const SCHEMA_VERSION = 5
+const SCHEMA_VERSION = 6
 
 // Exercises that got renamed after the fact. History keeps a name snapshot per
 // entry, so a rename has to sweep the sessions too or old workouts keep the old label.
@@ -24,6 +24,14 @@ const RENAMES_V4 = {
 // station without a load ceiling, so the name should say what it is.
 const RENAMES_V5 = {
   'Machine Chest Press': 'Smith Flat Press',
+}
+
+// "Flat DB Bench (neutral grip)" was the Smith too - the same lift as the
+// Day 4 press, logged under a second name. Folding them together gives one
+// continuous progression line instead of two half-histories. Nothing is
+// lost: each entry still sits in its own session, which knows its day.
+const RENAMES_V6 = {
+  'Flat DB Bench (neutral grip)': 'Smith Flat Press',
 }
 
 // Gaps the old program never covered: a hinge, calves and loaded carries.
@@ -154,6 +162,30 @@ function migrate(db){
     }
   }
 
+  if (from < 6){
+    for (const [oldName, newName] of Object.entries(RENAMES_V6)){
+      const stale = db.exercises.find(e => e.name === oldName)
+      const target = db.exercises.find(e => e.name === newName && e.id !== stale?.id)
+      if (stale && target){
+        // Merge: drop the duplicate and point its history at the survivor
+        db.exercises = db.exercises.filter(e => e.id !== stale.id)
+        for (const s of db.sessions){
+          for (const en of s.entries){
+            if (en.exerciseId === stale.id) en.exerciseId = target.id
+          }
+        }
+      }else if (stale){
+        stale.name = newName
+        stale.equipment = 'Smith'
+      }
+      for (const s of db.sessions){
+        for (const en of s.entries){
+          if (en.exerciseName === oldName) en.exerciseName = newName
+        }
+      }
+    }
+  }
+
   db.version = SCHEMA_VERSION
   saveDB(db)
   return db
@@ -173,7 +205,6 @@ export function seedDB(){
   // Seed with your current routine exercises (you can edit/add/delete anytime in the app).
   const routineExercises = [
     // Day 1 – Push
-    { name: 'Flat DB Bench (neutral grip)', category: 'Push', equipment: 'Dumbbell' },
     { name: 'Incline DB Bench (neutral grip)', category: 'Push', equipment: 'Dumbbell' },
     { name: 'Cable Chest Press (low→mid angle)', category: 'Push', equipment: 'Cable' },
     { name: 'DB Neutral-Grip High-Incline Press (~60°)', category: 'Push', equipment: 'Dumbbell' },

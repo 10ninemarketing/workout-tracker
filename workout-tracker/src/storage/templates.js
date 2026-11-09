@@ -33,7 +33,7 @@ export const DAY_TEMPLATES = [
     label: 'Upper B – Volume',
     items: [
       { name: 'Cable External Rotations', sets: 2, reps: '15' },
-      { name: 'Flat DB Bench (neutral grip)', sets: 3, reps: '10–12' },
+      { name: 'Cable Chest Press (low→mid angle)', sets: 3, reps: '10–12' },
       { name: 'Pull-Ups (bodyweight)', sets: 4, reps: '6–10' },
       { name: 'Chest-Supported DB Row (1-arm)', sets: 3, reps: '10–12' },
       { name: 'DB Neutral-Grip High-Incline Press (~60°)', sets: 2, reps: '10–12' },
