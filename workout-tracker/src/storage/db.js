@@ -1,7 +1,7 @@
 import { uid } from '../lib/workout.js'
 
 const KEY = 'wt_v1'
-const SCHEMA_VERSION = 21
+const SCHEMA_VERSION = 22
 
 // Exercises that got renamed after the fact. History keeps a name snapshot per
 // entry, so a rename has to sweep the sessions too or old workouts keep the old label.
@@ -179,7 +179,7 @@ const LIBRARY_FOODS = [
     // which plain flax milk does not have, and which is the only way 45 kcal
     // reconciles with 2.5 g of fat and 1 g of carbohydrate.
     name: 'Flax Milk (unsweetened)',
-    brand: '',
+    brand: 'Good Karma Protein+',
     serving: '1 cup (240 mL)',
     kcal: 45, protein: 5, carbs: 1, fat: 2.5, satFat: 0, fiber: 0, soluble: 0,
   },
@@ -359,6 +359,11 @@ function migrate(db){
 
   // Runs on every upgrade rather than at one version, so new entries reach a
   // phone whatever version it was last on.
+  if (from < 22){
+    const flax = db.foods.find(f => f.name === 'Flax Milk (unsweetened)')
+    if (flax && !flax.brand) flax.brand = 'Good Karma Protein+'
+  }
+
   for (const add of LIBRARY_FOODS){
     if (!db.foods.some(f => f.name === add.name && (f.brand || '') === (add.brand || ''))){
       db.foods.push({ id: uid(), ...add, createdAt: nowIso() })
