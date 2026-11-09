@@ -59,6 +59,7 @@ export default function App(){
       key: uid(),
       exerciseId: ensureExerciseIdByName(item.name),
       exerciseName: item.name,
+      target: item.reps || null,
       sets: Array.from({ length: item.sets }, () => ({ weight: '', reps: '' }))
     }))
     setDraft({

@@ -300,6 +300,8 @@ function ExerciseCard({ entry, hint, units, onMenu, onChange, onFill, onAddSet, 
         <div className="row-main">
           <div className="ex-title">{entry.exerciseName}</div>
           <div className="ex-sub">
+            {entry.target && <span className="ex-target">{entry.target} reps</span>}
+            {entry.target && ' · '}
             {hint ? `Last time ${shortDate(hint.dateIso)}` : 'First time logging this'} · {done}/{entry.sets.length} sets
           </div>
         </div>

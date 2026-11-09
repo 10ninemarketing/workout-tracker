@@ -1,6 +1,28 @@
 import { uid } from '../lib/workout.js'
 
 const KEY = 'wt_v1'
+const SCHEMA_VERSION = 3
+
+// Exercises that got renamed after the fact. History keeps a name snapshot per
+// entry, so a rename has to sweep the sessions too or old workouts keep the old label.
+const RENAMES = {
+  'Skull Crushers (light)': 'Dips',
+  'Pull-Ups (assisted if needed)': 'Pull-Ups (bodyweight)',
+}
+
+const ADDED_EXERCISES = [
+  { name: 'Assisted Pull-Ups', category: 'Pull', equipment: 'Machine' },
+]
+
+// Gaps the old program never covered: a hinge, calves and loaded carries.
+const ADDED_EXERCISES_V3 = [
+  { name: 'Romanian Deadlift', category: 'Legs', equipment: 'Barbell' },
+  { name: 'Standing Calf Raises', category: 'Legs', equipment: 'Machine' },
+  { name: 'Seated Calf Raises', category: 'Legs', equipment: 'Machine' },
+  { name: 'Walking Lunges', category: 'Legs', equipment: 'Dumbbell' },
+  { name: 'Suitcase Carry', category: 'Core', equipment: 'Dumbbell' },
+  { name: 'Plank', category: 'Core', equipment: 'Bodyweight' },
+]
 
 function nowIso(){
   return new Date().toISOString()
@@ -18,10 +40,81 @@ export function loadDB(){
     if (!Array.isArray(parsed.sessions)) parsed.sessions = []
     if (!parsed.settings) parsed.settings = { units: 'lb' }
     if (!parsed.activeProfileId) parsed.activeProfileId = parsed.profiles[0]?.id || null
-    return parsed
+    return migrate(parsed)
   }catch{
     return seedDB()
   }
+}
+
+function sessionVolume(session){
+  return session.entries.reduce(
+    (total, entry) => total + entry.sets.reduce((n, set) => n + (Number(set.weight) || 0) * (Number(set.reps) || 0), 0),
+    0
+  )
+}
+
+// One-way upgrades, each guarded by db.version so they run exactly once per phone.
+function migrate(db){
+  const from = Number(db.version) || 1
+  if (from >= SCHEMA_VERSION) return db
+
+  if (from < 2){
+    for (const [oldName, newName] of Object.entries(RENAMES)){
+      const stale = db.exercises.find(e => e.name === oldName)
+      if (stale){
+        const existing = db.exercises.find(e => e.name === newName && e.id !== stale.id)
+        if (existing){
+          // Both names already in the library — fold the old one into the new one
+          db.exercises = db.exercises.filter(e => e.id !== stale.id)
+          for (const s of db.sessions){
+            for (const en of s.entries){
+              if (en.exerciseId === stale.id) en.exerciseId = existing.id
+            }
+          }
+        }else{
+          stale.name = newName
+        }
+      }
+      for (const s of db.sessions){
+        for (const en of s.entries){
+          if (en.exerciseName === oldName) en.exerciseName = newName
+        }
+      }
+    }
+
+    for (const add of ADDED_EXERCISES){
+      if (!db.exercises.some(e => e.name === add.name)){
+        db.exercises.push({ id: uid(), ...add, isActive: true, createdAt: nowIso() })
+      }
+    }
+
+    // 2026-09-11 leg press was logged as 260x45; it was 260x15.
+    for (const s of db.sessions){
+      let touched = false
+      for (const en of s.entries){
+        if (en.exerciseName !== 'Leg Press') continue
+        for (const set of en.sets){
+          if (Number(set.weight) === 260 && Number(set.reps) === 45){
+            set.reps = 15
+            touched = true
+          }
+        }
+      }
+      if (touched) s.totalVolume = sessionVolume(s)
+    }
+  }
+
+  if (from < 3){
+    for (const add of ADDED_EXERCISES_V3){
+      if (!db.exercises.some(e => e.name === add.name)){
+        db.exercises.push({ id: uid(), ...add, isActive: true, createdAt: nowIso() })
+      }
+    }
+  }
+
+  db.version = SCHEMA_VERSION
+  saveDB(db)
+  return db
 }
 
 export function saveDB(db){
@@ -59,17 +152,24 @@ export function seedDB(){
     { name: 'Split Squats', category: 'Legs', equipment: 'Dumbbell' },
     { name: 'Leg Extensions', category: 'Legs', equipment: 'Machine' },
     { name: 'Hamstring Curls', category: 'Legs', equipment: 'Machine' },
+    { name: 'Romanian Deadlift', category: 'Legs', equipment: 'Barbell' },
+    { name: 'Standing Calf Raises', category: 'Legs', equipment: 'Machine' },
+    { name: 'Seated Calf Raises', category: 'Legs', equipment: 'Machine' },
+    { name: 'Walking Lunges', category: 'Legs', equipment: 'Dumbbell' },
+    { name: 'Suitcase Carry', category: 'Core', equipment: 'Dumbbell' },
+    { name: 'Plank', category: 'Core', equipment: 'Bodyweight' },
 
     // Day 4 – Push (light)
     { name: 'Machine Chest Press', category: 'Push', equipment: 'Machine' },
     { name: 'Decline DB Bench (neutral grip)', category: 'Push', equipment: 'Dumbbell' },
     { name: 'Cable Y-Raise', category: 'Shoulders', equipment: 'Cable' },
     { name: 'Lateral Raises (slow)', category: 'Shoulders', equipment: 'Dumbbell' },
-    { name: 'Skull Crushers (light)', category: 'Triceps', equipment: 'EZ Bar' },
+    { name: 'Dips', category: 'Triceps', equipment: 'Bodyweight' },
     { name: 'Rope Pushdowns', category: 'Triceps', equipment: 'Cable' },
 
     // Day 5 – Pull
-    { name: 'Pull-Ups (assisted if needed)', category: 'Pull', equipment: 'Bodyweight' },
+    { name: 'Pull-Ups (bodyweight)', category: 'Pull', equipment: 'Bodyweight' },
+    { name: 'Assisted Pull-Ups', category: 'Pull', equipment: 'Machine' },
     { name: 'Machine Row', category: 'Pull', equipment: 'Machine' },
     { name: 'Cable Curls', category: 'Biceps', equipment: 'Cable' },
     { name: 'Reverse Curls', category: 'Biceps', equipment: 'EZ Bar' },
@@ -91,7 +191,7 @@ export function seedDB(){
   }))
 
   const db = {
-    version: 1,
+    version: SCHEMA_VERSION,
     settings: { units: 'lb' },
     profiles: [john],
     activeProfileId: john.id,
