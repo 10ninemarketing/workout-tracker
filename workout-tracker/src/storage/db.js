@@ -1,7 +1,7 @@
 import { uid } from '../lib/workout.js'
 
 const KEY = 'wt_v1'
-const SCHEMA_VERSION = 8
+const SCHEMA_VERSION = 9
 
 // Exercises that got renamed after the fact. History keeps a name snapshot per
 // entry, so a rename has to sweep the sessions too or old workouts keep the old label.
@@ -55,6 +55,24 @@ const ADDED_EXERCISES_V7 = [
 // 1.0 g/lb of bodyweight, fat high enough to leave hormones alone. Editable
 // in Settings - these are a starting point, not a verdict.
 export const DEFAULT_TARGETS = { kcal: 2400, protein: 185, carbs: 220, fat: 85 }
+
+// Foods entered from photographs of their labels. Macros are per serving,
+// exactly as printed. Each one is added only if its name is not already in
+// the library, so re-running this never duplicates anything.
+const ADDED_FOODS_V9 = [
+  {
+    name: 'Salmon Burger',
+    brand: 'Costco',
+    serving: '1 burger (113 g / 4 oz)',
+    kcal: 170, protein: 20, carbs: 2, fat: 9,
+  },
+  {
+    name: 'Organic Greek Yogurt (nonfat, plain)',
+    brand: 'Costco',
+    serving: '2/3 cup (170 g)',
+    kcal: 100, protein: 18, carbs: 7, fat: 0,
+  },
+]
 
 function nowIso(){
   return new Date().toISOString()
@@ -219,6 +237,14 @@ function migrate(db){
     if (!db.settings.targets) db.settings.targets = { ...DEFAULT_TARGETS }
   }
 
+  if (from < 9){
+    for (const add of ADDED_FOODS_V9){
+      if (!db.foods.some(f => f.name === add.name && (f.brand || '') === (add.brand || ''))){
+        db.foods.push({ id: uid(), ...add, createdAt: nowIso() })
+      }
+    }
+  }
+
   db.version = SCHEMA_VERSION
   saveDB(db)
   return db
@@ -304,7 +330,7 @@ export function seedDB(){
     activeProfileId: john.id,
     exercises,
     sessions: [],
-    foods: [],
+    foods: ADDED_FOODS_V9.map(f => ({ id: uid(), ...f, createdAt: nowIso() })),
     foodLog: [],
     weights: []
   }
