@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from 'react'
 import { Icon } from '../components/Icons.jsx'
-import { uid, formatDate, todayInput, downloadFile, setCount, plural } from '../lib/workout.js'
+import { uid, formatDate, todayInput, downloadFile, copyText, shareFile, canShareFiles, setCount, plural } from '../lib/workout.js'
 
 function toCSV(rows){
   const esc = v => {
@@ -19,6 +19,7 @@ export default function Settings({ db, api, notify }){
     return formatDate(d.toISOString())
   })
   const [end, setEnd] = useState(todayInput())
+  const shareable = useMemo(() => canShareFiles(), [])
   const [restoreOpen, setRestoreOpen] = useState(false)
   const [restoreText, setRestoreText] = useState('')
 
@@ -47,7 +48,7 @@ export default function Settings({ db, api, notify }){
     notify('Profile deleted')
   }
 
-  function exportCSV(){
+  function buildCSV(){
     const rows = [['date', 'workout', 'exercise', 'set', `weight (${db.settings.units})`, 'reps', 'notes']]
     for (const s of rangeSessions){
       for (const en of s.entries){
@@ -56,17 +57,36 @@ export default function Settings({ db, api, notify }){
         })
       }
     }
-    downloadFile({ content: toCSV(rows), mime: 'text/csv', filename: `workouts-${start}-to-${end}.csv` })
+    return toCSV(rows)
   }
 
-  function exportJSON(){
-    const payload = {
+  function buildJSON(){
+    return JSON.stringify({
       exportedAt: new Date().toISOString(),
       units: db.settings.units,
       dateRange: { start, end },
       sessions: rangeSessions
-    }
-    downloadFile({ content: JSON.stringify(payload, null, 2), mime: 'application/json', filename: `workouts-${start}-to-${end}.json` })
+    }, null, 2)
+  }
+
+  const csvName = `workouts-${start}-to-${end}.csv`
+
+  function exportCSV(){
+    downloadFile({ content: buildCSV(), mime: 'text/csv', filename: csvName })
+  }
+
+  function exportJSON(){
+    downloadFile({ content: buildJSON(), mime: 'application/json', filename: `workouts-${start}-to-${end}.json` })
+  }
+
+  async function copyCSV(){
+    const ok = await copyText(buildCSV())
+    notify(ok ? 'CSV copied — paste it anywhere' : 'Could not copy — use CSV instead')
+  }
+
+  async function shareCSV(){
+    const ok = await shareFile({ content: buildCSV(), mime: 'text/csv', filename: csvName })
+    if (!ok) exportCSV()
   }
 
   function downloadBackup(){
@@ -152,6 +172,19 @@ export default function Settings({ db, api, notify }){
             <button className="btn" onClick={exportJSON} disabled={rangeSessions.length === 0}>
               <Icon name="download" size={18} /> JSON
             </button>
+          </div>
+          <div className="row2">
+            <button className="btn" onClick={copyCSV} disabled={rangeSessions.length === 0}>
+              <Icon name="copy" size={18} /> Copy CSV
+            </button>
+            {shareable && (
+              <button className="btn" onClick={shareCSV} disabled={rangeSessions.length === 0}>
+                <Icon name="share" size={18} /> Share
+              </button>
+            )}
+          </div>
+          <div className="muted small">
+            Copy drops the whole range on your clipboard as text. Share hands the file to AirDrop, Mail or Files.
           </div>
         </div>
       </section>

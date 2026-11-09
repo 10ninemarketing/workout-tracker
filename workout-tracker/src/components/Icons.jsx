@@ -21,6 +21,8 @@ const PATHS = {
   play: <path d="M8 5.5v13l10.5-6.5z" fill="currentColor" />,
   download: <path d="M12 4v11M7 10l5 5 5-5M5 20h14" />,
   upload: <path d="M12 16V5M7 10l5-5 5 5M5 20h14" />,
+  copy: <><rect x="9" y="9" width="11" height="11" rx="2" /><path d="M15 5.5A1.5 1.5 0 0 0 13.5 4H6a2 2 0 0 0-2 2v7.5A1.5 1.5 0 0 0 5.5 15" /></>,
+  share: <><path d="M12 15V4M8 7.5 12 3.5l4 4" /><path d="M5 12v7a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-7" /></>,
 }
 
 export function Icon({ name, size = 22, ...props }){

@@ -130,6 +130,53 @@ export function draftProgress(draft){
   return { done, total }
 }
 
+export async function copyText(text){
+  try{
+    if (navigator.clipboard?.writeText){
+      await navigator.clipboard.writeText(text)
+      return true
+    }
+  }catch{ /* fall through to the old-school path below */ }
+  try{
+    // Safari refuses the async clipboard in some contexts; a selected textarea still works
+    const ta = document.createElement('textarea')
+    ta.value = text
+    ta.setAttribute('readonly', '')
+    ta.style.position = 'fixed'
+    ta.style.top = '-1000px'
+    document.body.appendChild(ta)
+    ta.select()
+    ta.setSelectionRange(0, text.length)
+    const ok = document.execCommand('copy')
+    ta.remove()
+    return ok
+  }catch{
+    return false
+  }
+}
+
+export function canShareFiles(){
+  try{
+    const probe = new File(['x'], 'probe.csv', { type: 'text/csv' })
+    return !!(navigator.canShare && navigator.canShare({ files: [probe] }))
+  }catch{
+    return false
+  }
+}
+
+export async function shareFile({ content, mime, filename }){
+  try{
+    const file = new File([content], filename, { type: mime })
+    if (!navigator.canShare?.({ files: [file] })) return false
+    await navigator.share({ files: [file], title: filename })
+    return true
+  }catch(err){
+    // Tapping Cancel in the iOS share sheet lands here too
+    if (err?.name === 'AbortError') return true
+    return false
+  }
+}
+
 export function downloadFile({ content, mime, filename }){
   const url = URL.createObjectURL(new Blob([content], { type: mime }))
   const a = document.createElement('a')
