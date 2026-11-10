@@ -1,7 +1,7 @@
 import { uid } from '../lib/workout.js'
 
 const KEY = 'wt_v1'
-const SCHEMA_VERSION = 26
+const SCHEMA_VERSION = 27
 
 // Exercises that got renamed after the fact. History keeps a name snapshot per
 // entry, so a rename has to sweep the sessions too or old workouts keep the old label.
@@ -228,6 +228,45 @@ const LIBRARY_FOODS = [
     brand: 'Whole Foods Market',
     serving: '1 can, 4 oz (113 g) drained',
     kcal: 130, protein: 31, carbs: 0, fat: 1, satFat: 0, fiber: 0, soluble: 0,
+  },
+  {
+    // The finishing oil. Polyphenols are the reason to keep it raw, and its
+    // smoke point is the reason not to cook in it.
+    name: 'Olive Oil (extra virgin)',
+    brand: '',
+    serving: '1 Tbsp (14 g)',
+    kcal: 119, protein: 0, carbs: 0, fat: 13.5, satFat: 1.9, fiber: 0, soluble: 0,
+  },
+  {
+    // The cooking oil. Macros are a wash against olive; the smoke point is not.
+    name: 'Avocado Oil',
+    brand: '',
+    serving: '1 Tbsp (14 g)',
+    kcal: 124, protein: 0, carbs: 0, fat: 14, satFat: 1.6, fiber: 0, soluble: 0,
+  },
+  {
+    // Shelled, unsalted. Close enough to almonds that buying almonds instead
+    // would be a purchase with no result attached to it.
+    name: 'Pistachios (shelled, unsalted)',
+    brand: '',
+    serving: '1 oz (28 g)',
+    kcal: 159, protein: 5.7, carbs: 7.7, fat: 12.9, satFat: 1.6, fiber: 3, soluble: 0.4,
+  },
+  {
+    // Frozen, cooked from frozen. The cheapest fiber in the library: 5.5 g for
+    // fifty-two calories.
+    name: 'Broccoli (frozen, cooked)',
+    brand: '',
+    serving: '1 cup (184 g)',
+    kcal: 52, protein: 5.7, carbs: 9.2, fat: 0.2, satFat: 0, fiber: 5.5, soluble: 1.6,
+  },
+  {
+    // Measured cooked, which is how it lands on a plate. Dry is roughly a
+    // third of this by volume.
+    name: 'Lentils (cooked)',
+    brand: '',
+    serving: '1 cup cooked (198 g)',
+    kcal: 230, protein: 17.9, carbs: 39.9, fat: 0.8, satFat: 0.1, fiber: 15.6, soluble: 3.9,
   },
 ]
 
