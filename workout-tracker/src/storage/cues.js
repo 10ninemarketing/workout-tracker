@@ -12,6 +12,18 @@ export const CUES = {
     'Bend at the hips only — let your torso fall until it is near vertical.',
     'Squeeze your glutes to come up and STOP level with your legs. Arching past straight is the only way to hurt yourself here.',
   ],
+  'Glute Bridge (DB on hips)': [
+    'Flat on your back, knees bent, heels close enough that your fingers could brush them.',
+    'Dumbbell resting across your hips — hold it there with both hands.',
+    'Push through your heels and lift your hips until your body is a straight line from knees to shoulders.',
+    'Squeeze for a full second at the top, then lower under control. Done wrong, nothing happens — which is why this one.',
+  ],
+  'Cable Pull-Through': [
+    'Rope on the LOW pulley. Face away from the stack, rope between your legs.',
+    'Walk forward until there is tension, feet a bit wider than your shoulders.',
+    'Push your hips straight back, knees barely bending, until you feel the hamstrings stretch. Back stays flat.',
+    'Drive your hips forward to stand tall and squeeze. The cable pulls you backward, not down — that is why it is a safe place to learn a hinge.',
+  ],
   'Hip Thrust': [
     'Shoulder blades on the bench edge, feet flat, shins vertical at the top.',
     'Pad across the hips, chin tucked, ribs down.',

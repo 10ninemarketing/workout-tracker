@@ -1,7 +1,7 @@
 import { uid } from '../lib/workout.js'
 
 const KEY = 'wt_v1'
-const SCHEMA_VERSION = 28
+const SCHEMA_VERSION = 29
 
 // Exercises that got renamed after the fact. History keeps a name snapshot per
 // entry, so a rename has to sweep the sessions too or old workouts keep the old label.
@@ -56,6 +56,12 @@ const ADDED_EXERCISES_V7 = [
 const ADDED_EXERCISES_V28 = [
   { name: 'Hip Thrust', category: 'Legs', equipment: 'Machine' },
   { name: '45° Back Extension', category: 'Legs', equipment: 'Bodyweight' },
+]
+
+// Hip extension for a gym with no thrust station and no hyperextension bench.
+const ADDED_EXERCISES_V29 = [
+  { name: 'Glute Bridge (DB on hips)', category: 'Legs', equipment: 'Dumbbell' },
+  { name: 'Cable Pull-Through', category: 'Legs', equipment: 'Cable' },
 ]
 
 // Cut-phase numbers: ~400 under an estimated 2,800 maintenance, protein at
@@ -430,6 +436,14 @@ function migrate(db){
     }
   }
 
+  if (from < 29){
+    for (const add of ADDED_EXERCISES_V29){
+      if (!db.exercises.some(e => e.name === add.name)){
+        db.exercises.push({ id: uid(), ...add, isActive: true, createdAt: nowIso() })
+      }
+    }
+  }
+
   if (from < 28){
     for (const add of ADDED_EXERCISES_V28){
       if (!db.exercises.some(e => e.name === add.name)){
@@ -543,6 +557,8 @@ export function seedDB(){
     { name: 'Romanian Deadlift', category: 'Legs', equipment: 'Barbell' },
     { name: 'Hip Thrust', category: 'Legs', equipment: 'Machine' },
     { name: '45° Back Extension', category: 'Legs', equipment: 'Bodyweight' },
+    { name: 'Glute Bridge (DB on hips)', category: 'Legs', equipment: 'Dumbbell' },
+    { name: 'Cable Pull-Through', category: 'Legs', equipment: 'Cable' },
     { name: 'Standing Calf Raises', category: 'Legs', equipment: 'Machine' },
     { name: 'Seated Calf Raises', category: 'Legs', equipment: 'Machine' },
     { name: 'Walking Lunges', category: 'Legs', equipment: 'Dumbbell' },
