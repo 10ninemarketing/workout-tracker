@@ -1,7 +1,7 @@
 import { uid } from '../lib/workout.js'
 
 const KEY = 'wt_v1'
-const SCHEMA_VERSION = 25
+const SCHEMA_VERSION = 26
 
 // Exercises that got renamed after the fact. History keeps a name snapshot per
 // entry, so a rename has to sweep the sessions too or old workouts keep the old label.
@@ -219,6 +219,15 @@ const LIBRARY_FOODS = [
     brand: 'Wildbrine Organic',
     serving: '2 tbsp (30 g)',
     kcal: 5, protein: 0, carbs: 2, fat: 0, satFat: 0, fiber: 1, soluble: 0.3,
+  },
+  {
+    // The densest protein in the library at 23.8 g per 100 kcal, and the whole
+    // can is one serving. Lean, so it replaces chicken, not salmon - there is
+    // almost no EPA or DHA in it.
+    name: 'Skipjack Tuna in Water (unsalted)',
+    brand: 'Whole Foods Market',
+    serving: '1 can, 4 oz (113 g) drained',
+    kcal: 130, protein: 31, carbs: 0, fat: 1, satFat: 0, fiber: 0, soluble: 0,
   },
 ]
 
