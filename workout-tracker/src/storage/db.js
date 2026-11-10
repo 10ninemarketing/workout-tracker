@@ -1,7 +1,7 @@
 import { uid } from '../lib/workout.js'
 
 const KEY = 'wt_v1'
-const SCHEMA_VERSION = 23
+const SCHEMA_VERSION = 24
 
 // Exercises that got renamed after the fact. History keeps a name snapshot per
 // entry, so a rename has to sweep the sessions too or old workouts keep the old label.
@@ -56,6 +56,9 @@ const ADDED_EXERCISES_V7 = [
 // in Settings - these are a starting point, not a verdict.
 // satFat is a ceiling, not a goal: ~7% of calories, the threshold the lipid
 // evidence actually uses.
+// Identity for a library food that survives being renamed on the phone.
+const libKeyOf = f => `${f.name}|${f.brand || ''}`
+
 export const DEFAULT_TARGETS = { kcal: 2400, protein: 185, carbs: 220, fat: 85, satFat: 19, fiber: 35, soluble: 10 }
 
 // Foods entered from their labels. Macros are per serving, exactly as printed -
@@ -199,6 +202,14 @@ const LIBRARY_FOODS = [
     brand: 'Wilde',
     serving: '25 chips (30 g)',
     kcal: 160, protein: 10, carbs: 8, fat: 10, satFat: 1, fiber: 2, soluble: 0.3,
+  },
+  {
+    // Casein rather than whey: digests slowly, which is the whole argument for
+    // eating it last thing at night. The sodium is the cost, not the fat.
+    name: 'Cottage Cheese (lowfat)',
+    brand: 'Good Culture',
+    serving: '1/2 cup (110 g)',
+    kcal: 80, protein: 14, carbs: 3, fat: 2.5, satFat: 1.5, fiber: 0, soluble: 0,
   },
 ]
 
@@ -365,17 +376,29 @@ function migrate(db){
     if (!db.settings.targets) db.settings.targets = { ...DEFAULT_TARGETS }
   }
 
-  // Runs on every upgrade rather than at one version, so new entries reach a
-  // phone whatever version it was last on.
   if (from < 22){
     const flax = db.foods.find(f => f.name === 'Flax Milk (unsweetened)')
     if (flax && !flax.brand) flax.brand = 'Good Karma Protein+'
   }
 
-  for (const add of LIBRARY_FOODS){
-    if (!db.foods.some(f => f.name === add.name && (f.brand || '') === (add.brand || ''))){
-      db.foods.push({ id: uid(), ...add, createdAt: nowIso() })
+  if (from < 24){
+    // Tag what came from the library with a stable key. Matching on the live
+    // name and brand meant renaming a food on the phone made the next upgrade
+    // treat it as missing and push a second copy in beside it.
+    for (const known of LIBRARY_FOODS){
+      const food = db.foods.find(f => f.name === known.name && (f.brand || '') === (known.brand || ''))
+      if (food && !food.libKey) food.libKey = libKeyOf(known)
     }
+  }
+
+  // Runs on every upgrade rather than at one version, so new entries reach a
+  // phone whatever version it was last on.
+  for (const add of LIBRARY_FOODS){
+    const key = libKeyOf(add)
+    const here = db.foods.some(f => (
+      f.libKey ? f.libKey === key : (f.name === add.name && (f.brand || '') === (add.brand || ''))
+    ))
+    if (!here) db.foods.push({ id: uid(), libKey: key, ...add, createdAt: nowIso() })
   }
 
   if (from < 18){
