@@ -9,6 +9,7 @@ const PATHS = {
   list: <path d="M9 6h11M9 12h11M9 18h11M4.5 6h.01M4.5 12h.01M4.5 18h.01" />,
   sliders: <><path d="M4 6h10M18 6h2M4 12h4M12 12h8M4 18h12" /><circle cx="16" cy="6" r="2" /><circle cx="10" cy="12" r="2" /><circle cx="18" cy="18" r="2" /></>,
   plus: <path d="M12 5v14M5 12h14" />,
+  info: <><circle cx="12" cy="12" r="9" /><path d="M12 11v5M12 7.6h.01" /></>,
   x: <path d="M6 6l12 12M18 6 6 18" />,
   more: <><circle cx="5.5" cy="12" r="1.5" {...dot} /><circle cx="12" cy="12" r="1.5" {...dot} /><circle cx="18.5" cy="12" r="1.5" {...dot} /></>,
   search: <><circle cx="11" cy="11" r="7" /><path d="m20 20-3.5-3.5" /></>,

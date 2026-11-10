@@ -1,7 +1,7 @@
 import React, { useMemo, useState } from 'react'
 import { Icon } from '../components/Icons.jsx'
-import Sheet from '../components/Sheet.jsx'
-import { profileSessions, formatNumber, formatSet, setCount, plural } from '../lib/workout.js'
+import ExercisePicker from '../components/ExercisePicker.jsx'
+import { uid, profileSessions, formatNumber, formatSet, setCount, plural } from '../lib/workout.js'
 
 export default function History({ db, api, notify }){
   const sessions = useMemo(() => profileSessions(db), [db])
@@ -12,6 +12,12 @@ export default function History({ db, api, notify }){
 
   // Log the wrong exercise and the sets are still right - only the name on
   // them is wrong. Deleting the workout to fix one row throws away the rest.
+  function createAndReassign(name){
+    const ex = { id: uid(), name: name.trim(), category: 'Other', equipment: '', isActive: true, createdAt: new Date().toISOString() }
+    api.upsertExercise(ex)
+    reassign(ex)
+  }
+
   function reassign(ex){
     const { session, index } = fixing
     api.updateSession({
@@ -99,50 +105,14 @@ export default function History({ db, api, notify }){
 
       <ExercisePicker
         open={!!fixing}
-        current={fixing ? fixing.session.entries[fixing.index].exerciseName : ''}
+        title={fixing ? `Logged as ${fixing.session.entries[fixing.index].exerciseName}` : 'Change exercise'}
         exercises={db.exercises}
+        usedIds={new Set(fixing ? [fixing.session.entries[fixing.index].exerciseId] : [])}
+        currentId={fixing ? fixing.session.entries[fixing.index].exerciseId : null}
         onClose={() => setFixing(null)}
         onPick={reassign}
+        onCreate={createAndReassign}
       />
     </div>
-  )
-}
-
-function ExercisePicker({ open, current, exercises, onClose, onPick }){
-  const [q, setQ] = useState('')
-  const needle = q.trim().toLowerCase()
-  const shown = exercises
-    .slice()
-    .sort((a, b) => a.name.localeCompare(b.name))
-    .filter(e => !needle || `${e.name} ${e.category || ''}`.toLowerCase().includes(needle))
-
-  return (
-    <Sheet open={open} onClose={onClose} title="Change exercise" full>
-      <p className="footnote">
-        The sets stay exactly as you logged them. Only which exercise they
-        belong to changes.
-      </p>
-      <div className="sheet-search">
-        <div className="search">
-          <Icon name="search" size={18} />
-          <input value={q} onChange={e => setQ(e.target.value)} placeholder="Search exercises" autoComplete="off" />
-        </div>
-      </div>
-      <div className="list">
-        {shown.map(e => (
-          <button
-            key={e.id}
-            className="list-row row-btn row-main"
-            onClick={() => onPick(e)}
-            disabled={e.name === current}
-          >
-            <span className="row-title">{e.name}</span>
-            <span className="row-sub">
-              {e.name === current ? 'Logged as this' : [e.category, e.equipment].filter(Boolean).join(' · ')}
-            </span>
-          </button>
-        ))}
-      </div>
-    </Sheet>
   )
 }

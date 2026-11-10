@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react'
 import { DAY_TEMPLATES } from '../storage/templates.js'
+import { cuesFor } from '../storage/cues.js'
 import Sheet from '../components/Sheet.jsx'
 import ExercisePicker from '../components/ExercisePicker.jsx'
 import { Icon } from '../components/Icons.jsx'
@@ -294,6 +295,10 @@ function ActiveWorkout({ db, api, draft, setDraft, notify }){
 
 function ExerciseCard({ entry, hint, units, onMenu, onChange, onFill, onAddSet, onRemoveSet }){
   const done = entry.sets.filter(isFilledSet).length
+  const cues = cuesFor(entry.exerciseName)
+  // Collapsed by default: the cues are for the lifts you do not know yet, and
+  // they would be clutter on the ones you do.
+  const [showCues, setShowCues] = useState(false)
   return (
     <section className="card ex-card">
       <div className="ex-head">
@@ -305,10 +310,26 @@ function ExerciseCard({ entry, hint, units, onMenu, onChange, onFill, onAddSet, 
             {hint ? `Last time ${shortDate(hint.dateIso)}` : 'First time logging this'} · {done}/{entry.sets.length} sets
           </div>
         </div>
+        {cues && (
+          <button
+            className={`icon-btn${showCues ? ' icon-btn-on' : ''}`}
+            aria-label={`How to do ${entry.exerciseName}`}
+            aria-expanded={showCues}
+            onClick={() => setShowCues(v => !v)}
+          >
+            <Icon name="info" />
+          </button>
+        )}
         <button className="icon-btn" aria-label={`Options for ${entry.exerciseName}`} onClick={onMenu}>
           <Icon name="more" />
         </button>
       </div>
+
+      {cues && showCues && (
+        <ol className="cues">
+          {cues.map((c, i) => <li key={i}>{c}</li>)}
+        </ol>
+      )}
 
       <div className="set-grid set-headrow" aria-hidden="true">
         <span>Set</span><span>Previous</span><span>{units}</span><span>Reps</span><span />

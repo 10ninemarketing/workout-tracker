@@ -16,6 +16,11 @@
 // cost of a day he will skip. The hinge is a hip thrust rather than a Romanian
 // deadlift: same hip extension, no spinal loading, nothing to learn.
 //
+// The back extension rather than the hip thrust, because there is no thrust
+// station at his gym and setting one up with a barbell and a bench is its own
+// thing to learn. Replacing one unfamiliar lift with another unfamiliar lift
+// would have missed the point entirely.
+//
 // The pulldown sits second, before any other back work. It has been stalled
 // for two years, and for two years it has also been run late in the session.
 // Nobody has ever tested it fresh. That is the experiment, and the row pays
@@ -40,7 +45,7 @@ export const DAY_TEMPLATES = [
     label: 'Lower A – Press & Hinge',
     items: [
       { name: 'Leg Press', sets: 3, reps: '8–12' },
-      { name: 'Hip Thrust', sets: 3, reps: '10–12' },
+      { name: '45° Back Extension', sets: 3, reps: '12–15' },
       { name: 'Split Squats', sets: 2, reps: '10–12' },
       { name: 'Hamstring Curls', sets: 2, reps: '10–12' },
       { name: 'Standing Calf Raises', sets: 3, reps: '12–15' },

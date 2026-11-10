@@ -449,3 +449,13 @@ input[type="date"].input::-webkit-date-and-time-value{ text-align:left; }
 /* A logged entry can be pointed at a different exercise ------------------ */
 .session-ex-head{ display:flex; align-items:center; justify-content:space-between; gap:8px; }
 .session-ex-head .row-title{ min-width:0; }
+
+/* Form cues, collapsed until asked for ----------------------------------- */
+.icon-btn-on{ color:var(--accent); }
+.cues{
+  margin:0 0 4px; padding:12px 14px 12px 30px;
+  list-style:decimal; display:flex; flex-direction:column; gap:7px;
+  background:var(--surface-2, rgba(255,255,255,.04));
+  border-radius:10px; font-size:13px; line-height:1.45; color:var(--text-2);
+}
+.cues li::marker{ color:var(--text-3); font-variant-numeric:tabular-nums; }
