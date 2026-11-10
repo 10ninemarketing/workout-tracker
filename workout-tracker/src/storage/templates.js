@@ -16,12 +16,16 @@
 // cost of a day he will skip. The hinge is a hip thrust rather than a Romanian
 // deadlift: same hip extension, no spinal loading, nothing to learn.
 //
-// Three equipment swaps in: no thrust station and no hyperextension bench
-// either. The glute bridge is the least effective of the hip-extension
-// options and the only one whose failure mode is nothing happening - no bar
-// overhead, no spinal load, no skill. A hinge he skips trains nothing, so the
-// floor it is. Cable pull-throughs are in the exercise list as the upgrade
-// once he wants one.
+// Lower A has no hinge at all, because it turned out not to need one. His
+// curl machine is the SEATED kind, which trains the hamstring with the hip
+// flexed and so already loads it in the lengthened position - the one thing a
+// Romanian deadlift was in the program to buy. Seated curls produce roughly
+// twice the hamstring growth of lying curls (Maeo 2021), he does them on both
+// lower days, and split squats and lunges already cover the glutes. Four
+// equipment swaps chasing a slot that was filled under another name.
+//
+// Cable pull-throughs and the glute bridge stay in the exercise list for
+// whenever he wants a hinge. Nothing in the program depends on one.
 //
 // The pulldown sits second, before any other back work. It has been stalled
 // for two years, and for two years it has also been run late in the session.
@@ -47,9 +51,8 @@ export const DAY_TEMPLATES = [
     label: 'Lower A – Press & Hinge',
     items: [
       { name: 'Leg Press', sets: 3, reps: '8–12' },
-      { name: 'Glute Bridge (DB on hips)', sets: 3, reps: '12–15' },
-      { name: 'Split Squats', sets: 2, reps: '10–12' },
-      { name: 'Hamstring Curls', sets: 2, reps: '10–12' },
+      { name: 'Split Squats', sets: 3, reps: '10–12' },
+      { name: 'Hamstring Curls', sets: 3, reps: '10–12' },
       { name: 'Standing Calf Raises', sets: 3, reps: '12–15' },
       { name: 'Suitcase Carry', sets: 2, reps: '40 steps' },
     ],
