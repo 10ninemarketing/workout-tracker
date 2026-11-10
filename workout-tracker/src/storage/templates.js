@@ -10,6 +10,12 @@
 // by reps - no weighted pull-ups, because going 0 to 10 reps in two years is a
 // lift that is already progressing and does not need fixing.
 //
+// Nothing on the lower days runs below 8 reps. Hypertrophy is equivalent from
+// roughly 5 to 30 reps when the set is taken near failure, so a 6-8 leg press
+// buys maximal strength expression and nothing else - and it buys it at the
+// cost of a day he will skip. The hinge is a hip thrust rather than a Romanian
+// deadlift: same hip extension, no spinal loading, nothing to learn.
+//
 // The pulldown sits second, before any other back work. It has been stalled
 // for two years, and for two years it has also been run late in the session.
 // Nobody has ever tested it fresh. That is the experiment, and the row pays
@@ -31,10 +37,10 @@ export const DAY_TEMPLATES = [
   },
   {
     key: 'lower_a',
-    label: 'Lower A – Heavy',
+    label: 'Lower A – Press & Hinge',
     items: [
-      { name: 'Leg Press', sets: 3, reps: '6–8' },
-      { name: 'Romanian Deadlift', sets: 3, reps: '8–10' },
+      { name: 'Leg Press', sets: 3, reps: '8–12' },
+      { name: 'Hip Thrust', sets: 3, reps: '10–12' },
       { name: 'Split Squats', sets: 2, reps: '10–12' },
       { name: 'Hamstring Curls', sets: 2, reps: '10–12' },
       { name: 'Standing Calf Raises', sets: 3, reps: '12–15' },

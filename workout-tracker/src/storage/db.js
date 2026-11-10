@@ -1,7 +1,7 @@
 import { uid } from '../lib/workout.js'
 
 const KEY = 'wt_v1'
-const SCHEMA_VERSION = 27
+const SCHEMA_VERSION = 28
 
 // Exercises that got renamed after the fact. History keeps a name snapshot per
 // entry, so a rename has to sweep the sessions too or old workouts keep the old label.
@@ -49,6 +49,13 @@ const ADDED_EXERCISES_V3 = [
 // the other by reps.
 const ADDED_EXERCISES_V7 = [
   { name: 'Weighted Pull-Ups', category: 'Pull', equipment: 'Bodyweight' },
+]
+
+// Hip extension without spinal loading, to replace the Romanian deadlift.
+// The back extension is the fallback where there is no thrust station.
+const ADDED_EXERCISES_V28 = [
+  { name: 'Hip Thrust', category: 'Legs', equipment: 'Machine' },
+  { name: '45° Back Extension', category: 'Legs', equipment: 'Bodyweight' },
 ]
 
 // Cut-phase numbers: ~400 under an estimated 2,800 maintenance, protein at
@@ -423,6 +430,14 @@ function migrate(db){
     }
   }
 
+  if (from < 28){
+    for (const add of ADDED_EXERCISES_V28){
+      if (!db.exercises.some(e => e.name === add.name)){
+        db.exercises.push({ id: uid(), ...add, isActive: true, createdAt: nowIso() })
+      }
+    }
+  }
+
   if (from < 8){
     // Food and bodyweight. Each log row carries its own macro snapshot, the
     // same way a session entry carries its exercise name: editing a food later
@@ -526,6 +541,8 @@ export function seedDB(){
     { name: 'Leg Extensions', category: 'Legs', equipment: 'Machine' },
     { name: 'Hamstring Curls', category: 'Legs', equipment: 'Machine' },
     { name: 'Romanian Deadlift', category: 'Legs', equipment: 'Barbell' },
+    { name: 'Hip Thrust', category: 'Legs', equipment: 'Machine' },
+    { name: '45° Back Extension', category: 'Legs', equipment: 'Bodyweight' },
     { name: 'Standing Calf Raises', category: 'Legs', equipment: 'Machine' },
     { name: 'Seated Calf Raises', category: 'Legs', equipment: 'Machine' },
     { name: 'Walking Lunges', category: 'Legs', equipment: 'Dumbbell' },
