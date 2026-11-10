@@ -1,7 +1,7 @@
 import { uid } from '../lib/workout.js'
 
 const KEY = 'wt_v1'
-const SCHEMA_VERSION = 29
+const SCHEMA_VERSION = 30
 
 // Exercises that got renamed after the fact. History keeps a name snapshot per
 // entry, so a rename has to sweep the sessions too or old workouts keep the old label.
@@ -280,6 +280,16 @@ const LIBRARY_FOODS = [
     brand: '',
     serving: '1 cup cooked (198 g)',
     kcal: 230, protein: 17.9, carbs: 39.9, fat: 0.8, satFat: 0.1, fiber: 15.6, soluble: 3.9,
+  },
+  {
+    // The same oats as the dry entry, weighed after the water went in. Water
+    // has no calories, so the macros are identical per serving - only the
+    // unit changes, from a measure nobody has once it is cooked to one anybody
+    // can take from the bowl in front of them.
+    name: 'Oatmeal (cooked with water)',
+    brand: 'Organic',
+    serving: '1 cup cooked (~225 g)',
+    kcal: 160, protein: 6, carbs: 31, fat: 3, satFat: 0.5, fiber: 4, soluble: 2,
   },
 ]
 
