@@ -1,7 +1,7 @@
 import { uid } from '../lib/workout.js'
 
 const KEY = 'wt_v1'
-const SCHEMA_VERSION = 24
+const SCHEMA_VERSION = 25
 
 // Exercises that got renamed after the fact. History keeps a name snapshot per
 // entry, so a rename has to sweep the sessions too or old workouts keep the old label.
@@ -210,6 +210,15 @@ const LIBRARY_FOODS = [
     brand: 'Good Culture',
     serving: '1/2 cup (110 g)',
     kcal: 80, protein: 14, carbs: 3, fat: 2.5, satFat: 1.5, fiber: 0, soluble: 0,
+  },
+  {
+    // Macros here are a rounding error; it is in the library so the sodium and
+    // the fiber land somewhere rather than going unlogged. Soluble is the
+    // usual cabbage fraction, roughly a third of total.
+    name: 'Sauerkraut (raw)',
+    brand: 'Wildbrine Organic',
+    serving: '2 tbsp (30 g)',
+    kcal: 5, protein: 0, carbs: 2, fat: 0, satFat: 0, fiber: 1, soluble: 0.3,
   },
 ]
 
