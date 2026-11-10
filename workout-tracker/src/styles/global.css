@@ -357,7 +357,8 @@ input[type="date"].input::-webkit-date-and-time-value{ text-align:left; }
 .sheet-title{ font-size:18px; font-weight:700; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
 .sheet-body{ flex:1; min-height:0; overflow-y:auto; overscroll-behavior:contain; -webkit-overflow-scrolling:touch; margin:0 -16px; padding:0 16px 8px; }
 .sheet-search{ position:sticky; top:0; z-index:1; margin-bottom:12px; }
-.picker-create{ margin-bottom:12px; }
+.picker-create{ margin-bottom:8px; }
+.picker-oneoff{ margin-bottom:12px; opacity:.72; }
 .picker-group{ margin-bottom:14px; }
 .picker-group .section-label{ margin-top:0; }
 .restore{ margin-top:12px; }
@@ -429,3 +430,18 @@ input[type="date"].input::-webkit-date-and-time-value{ text-align:left; }
 .sol-flag{ color:var(--accent); opacity:.75; }
 .macro-sub2 .macro-label, .macro-sub2 .macro-value{ font-size:12px; color:var(--text-3); }
 .macro-sub2 .macro-track{ height:4px; }
+
+/* An estimated row wears it, so a week of intake can be read honestly ----- */
+.est-flag{
+  display:inline-block;
+  margin-right:6px;
+  padding:1px 5px;
+  border:1px solid var(--line);
+  border-radius:4px;
+  font-size:10px;
+  font-weight:600;
+  letter-spacing:.04em;
+  text-transform:uppercase;
+  color:var(--text-3);
+  vertical-align:1px;
+}

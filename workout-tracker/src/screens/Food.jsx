@@ -22,6 +22,7 @@ export default function Food({ db, api, notify }){
   const targets = db.settings.targets || {}
   const entries = useMemo(() => logForDate(db, date), [db, date])
   const totals = useMemo(() => sumMacros(entries), [entries])
+  const estKcal = useMemo(() => sumMacros(entries.filter(e => e.est)).kcal, [entries])
   const weights = useMemo(() => weightsFor(db), [db])
 
   const avg = rollingAverage(weights)
@@ -39,6 +40,9 @@ export default function Food({ db, api, notify }){
       brand: food.brand || '',
       serving: food.serving || '',
       servings,
+      // A guessed meal stays marked as guessed for as long as it is on record,
+      // so a week of intake can be read knowing how much of it was measured.
+      est: !!food.est,
       kcal: num(food.kcal),
       protein: num(food.protein),
       carbs: num(food.carbs),
@@ -53,6 +57,13 @@ export default function Food({ db, api, notify }){
   }
 
   function saveFood(food){
+    // A one-off never joins the library: the picker has to stay the short list
+    // of things he actually eats, or the two-tap logging stops being two taps.
+    if (editing?.oneOff){
+      addFood({ ...food, est: true })
+      setEditing(null)
+      return
+    }
     api.upsertFood(food)
     setEditing(null)
     notify(editing?.isNew ? 'Food saved' : 'Food updated')
@@ -123,6 +134,13 @@ export default function Food({ db, api, notify }){
             )
           })}
         </div>
+        {estKcal > 0 && (
+          <p className="footnote">
+            {fmt(estKcal)} kcal of this is estimated
+            {totals.kcal > 0 ? ` — ${Math.round((estKcal / totals.kcal) * 100)}% of the day` : ''}.
+            The rest came off a label.
+          </p>
+        )}
       </section>
 
       <button className="btn btn-primary btn-lg btn-block" onClick={() => setPicking(true)}>
@@ -143,6 +161,7 @@ export default function Food({ db, api, notify }){
                 <span className="row-main">
                   <span className="row-title">{e.foodName}</span>
                   <span className="row-sub">
+                    {e.est && <span className="est-flag">est</span>}
                     {e.brand ? `${e.brand} · ` : ''}{e.serving || 'serving'}
                     {' · '}{fmt(m.protein)}p {fmt(m.carbs)}c {fmt(m.fat)}f
                     {m.satFat >= 1 && <span className="sat-flag"> · {fmt(m.satFat)}g sat</span>}
@@ -211,6 +230,7 @@ export default function Food({ db, api, notify }){
         api={api}
         onPick={addFood}
         onNew={() => { setPicking(false); setEditing({ isNew: true, logAfterSave: true }) }}
+        onOneOff={() => { setPicking(false); setEditing({ isNew: true, oneOff: true }) }}
         onEdit={food => { setPicking(false); setEditing(food) }}
       />
 
@@ -225,7 +245,7 @@ export default function Food({ db, api, notify }){
   )
 }
 
-function FoodPicker({ open, onClose, db, api, onPick, onNew, onEdit }){
+function FoodPicker({ open, onClose, db, api, onPick, onNew, onOneOff, onEdit }){
   const [q, setQ] = useState('')
   const foods = useMemo(() => foodsByUse(db), [db])
   const needle = q.trim().toLowerCase()
@@ -244,6 +264,10 @@ function FoodPicker({ open, onClose, db, api, onPick, onNew, onEdit }){
 
       <button className="btn btn-dashed btn-block picker-create" onClick={onNew}>
         <Icon name="plus" size={17} /> New food{needle ? ` "${q.trim()}"` : ''}
+      </button>
+
+      <button className="btn btn-dashed btn-block picker-oneoff" onClick={onOneOff}>
+        <Icon name="plus" size={17} /> One-off estimate
       </button>
 
       {shown.length === 0 ? (
@@ -278,11 +302,12 @@ const BLANK = { name: '', brand: '', serving: '', kcal: '', protein: '', carbs: 
 
 function FoodForm({ open, food, onClose, onSave, onDelete }){
   const isNew = !food?.id
+  const oneOff = !!food?.oneOff
   const [form, setForm] = useState(BLANK)
   const [key, setKey] = useState(null)
 
   // Reset when a different food opens, without an effect
-  const openKey = food ? (food.id || 'new') : null
+  const openKey = food ? (food.id || (oneOff ? 'oneoff' : 'new')) : null
   if (open && openKey !== key){
     setKey(openKey)
     setForm(isNew ? BLANK : { ...BLANK, ...food })
@@ -321,7 +346,10 @@ function FoodForm({ open, food, onClose, onSave, onDelete }){
     })
   }
 
-  const macroProps = { type: 'number', inputMode: 'decimal', min: '0', placeholder: '0' }
+  // step defaults to 1 on a number input, and a step mismatch blocks form
+  // submission silently - which meant any decimal (0.5 g sat fat, 3.5 g
+  // soluble fiber) made the save button do nothing at all.
+  const macroProps = { type: 'number', inputMode: 'decimal', step: 'any', min: '0', placeholder: '0' }
   const computed = num(form.protein) * 4 + num(form.carbs) * 4 + num(form.fat) * 9
   const stated = num(form.kcal)
   // Floor of 15, not 25: a 45 kcal item can be wrong by 70% and still sit
@@ -332,13 +360,19 @@ function FoodForm({ open, food, onClose, onSave, onDelete }){
   const fiberTooHigh = num(form.fiber) > num(form.carbs)
 
   return (
-    <Sheet open={open} onClose={onClose} title={isNew ? 'New food' : form.name || 'Food'} full>
+    <Sheet open={open} onClose={onClose} title={oneOff ? 'One-off estimate' : isNew ? 'New food' : form.name || 'Food'} full>
       <form className="vstack" onSubmit={submit}>
-        {field('name', 'Name', { placeholder: 'e.g., Sockeye salmon fillet', autoComplete: 'off' })}
-        {field('brand', 'Brand', { placeholder: 'optional', autoComplete: 'off' })}
-        {field('serving', 'Serving', { placeholder: 'e.g., 6 oz, 1 scoop, 100 g', autoComplete: 'off' })}
+        {oneOff && (
+          <p className="footnote">
+            For a meal you did not make and will not eat again. It gets logged to
+            today, marked as an estimate, and stays out of your food list.
+          </p>
+        )}
+        {field('name', 'Name', { placeholder: oneOff ? 'e.g., Chicken, rice and lentil bowl' : 'e.g., Sockeye salmon fillet', autoComplete: 'off' })}
+        {!oneOff && field('brand', 'Brand', { placeholder: 'optional', autoComplete: 'off' })}
+        {field('serving', oneOff ? 'Portion' : 'Serving', { placeholder: oneOff ? 'e.g., 1 cup' : 'e.g., 6 oz, 1 scoop, 100 g', autoComplete: 'off' })}
 
-        <div className="section-label">Per serving, off the label</div>
+        <div className="section-label">{oneOff ? 'Best estimate' : 'Per serving, off the label'}</div>
         <div className="row2">
           {field('kcal', 'Calories', macroProps)}
           {field('protein', 'Protein (g)', macroProps)}
@@ -378,7 +412,7 @@ function FoodForm({ open, food, onClose, onSave, onDelete }){
         )}
 
         <button className="btn btn-primary btn-lg btn-block" disabled={!form.name.trim()}>
-          {isNew ? 'Save and log it' : 'Save changes'}
+          {oneOff ? 'Log it once' : isNew ? 'Save and log it' : 'Save changes'}
         </button>
 
         {!isNew && (
@@ -387,7 +421,9 @@ function FoodForm({ open, food, onClose, onSave, onDelete }){
           </button>
         )}
         <p className="footnote">
-          Editing a food changes it going forward only. Days you have already logged keep the numbers you ate.
+          {oneOff
+            ? 'An estimate is better than a blank. A day with one guess in it is still a usable day; a day with a hole in it is not.'
+            : 'Editing a food changes it going forward only. Days you have already logged keep the numbers you ate.'}
         </p>
       </form>
     </Sheet>
