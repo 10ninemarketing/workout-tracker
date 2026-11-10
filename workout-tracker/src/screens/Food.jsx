@@ -4,7 +4,8 @@ import Sheet from '../components/Sheet.jsx'
 import { uid, todayInput, friendlyDate } from '../lib/workout.js'
 import {
   MACROS, num, entryMacros, sumMacros, logForDate, foodsByUse,
-  weightsFor, rollingAverage, weightTrend, round, fmt
+  weightsFor, rollingAverage, weightTrend, round, fmt,
+  kcalFloor, averageIntake
 } from '../lib/nutrition.js'
 
 function shiftDate(date, days){
@@ -23,6 +24,11 @@ export default function Food({ db, api, notify }){
   const entries = useMemo(() => logForDate(db, date), [db, date])
   const totals = useMemo(() => sumMacros(entries), [entries])
   const estKcal = useMemo(() => sumMacros(entries.filter(e => e.est)).kcal, [entries])
+  const floor = kcalFloor(targets)
+  const week = useMemo(() => averageIntake(db, date), [db, date])
+  // Before the evening, every day is under the floor and saying so is noise.
+  const dayIsDone = date < today || new Date().getHours() >= 20
+  const underFloor = floor > 0 && entries.length > 0 && totals.kcal < floor
   const weights = useMemo(() => weightsFor(db), [db])
 
   const avg = rollingAverage(weights)
@@ -115,8 +121,9 @@ export default function Food({ db, api, notify }){
             const got = totals[m.key]
             const want = num(targets[m.key])
             const pct = want > 0 ? Math.min(100, (got / want) * 100) : 0
-            // A limit is breached the moment it is passed; a goal gets slack
-            const over = want > 0 && got > want * (m.limit ? 1 : 1.05)
+            // A limit is breached the moment it is passed; a goal gets slack;
+            // a floor like protein or fiber is never breached by going over.
+            const over = want > 0 && !m.more && got > want * (m.limit ? 1 : 1.05)
             return (
               <div key={m.key} className={`macro${m.sub ? ` macro-sub macro-sub${m.sub}` : ''}`}>
                 <div className="macro-top">
@@ -129,11 +136,34 @@ export default function Food({ db, api, notify }){
                 </div>
                 <div className="macro-track">
                   <div className={`macro-fill${over ? ' over' : ''}`} style={{ width: `${pct}%` }} />
+                  {m.key === 'kcal' && floor > 0 && want > 0 && (
+                    <span
+                      className="macro-floor"
+                      style={{ left: `${Math.min(100, (floor / want) * 100)}%` }}
+                      title={`Floor ${fmt(floor)}`}
+                    />
+                  )}
                 </div>
               </div>
             )
           })}
         </div>
+        {underFloor && dayIsDone && (
+          <p className="footnote danger-text">
+            {fmt(floor - totals.kcal)} under the floor of {fmt(floor)}. A deficit
+            this size stops costing fat and starts costing muscle — eat something.
+          </p>
+        )}
+
+        {week.avg != null && week.logged >= 3 && (
+          <p className={`footnote${week.avg < floor ? ' danger-text' : ''}`}>
+            {fmt(week.avg)} kcal a day across {week.logged} logged day{week.logged === 1 ? '' : 's'}
+            {week.avg < floor
+              ? ' — below the floor. This is the number that matters, not any one day.'
+              : '. This is the number that matters, not any one day.'}
+          </p>
+        )}
+
         {estKcal > 0 && (
           <p className="footnote">
             {fmt(estKcal)} kcal of this is estimated

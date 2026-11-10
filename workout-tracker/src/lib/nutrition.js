@@ -5,15 +5,31 @@
 
 // satFat is a component of fat, not a fifth macro - it renders indented under
 // it, and its number is a ceiling rather than something to fill.
+//
+// `more` marks the targets that are floors: going past them is the point, so
+// they never render as a warning. Fat and carbs have no flag because
+// overshooting them is what the calorie bar is already saying.
 export const MACROS = [
   { key: 'kcal', label: 'Calories', unit: '' },
-  { key: 'protein', label: 'Protein', unit: 'g' },
+  { key: 'protein', label: 'Protein', unit: 'g', more: true },
   { key: 'carbs', label: 'Carbs', unit: 'g' },
-  { key: 'fiber', label: 'Fiber', unit: 'g', sub: 1 },
-  { key: 'soluble', label: 'of which soluble', unit: 'g', sub: 2 },
+  { key: 'fiber', label: 'Fiber', unit: 'g', sub: 1, more: true },
+  { key: 'soluble', label: 'of which soluble', unit: 'g', sub: 2, more: true },
   { key: 'fat', label: 'Fat', unit: 'g' },
   { key: 'satFat', label: 'Saturated', unit: 'g', sub: 1, limit: true },
 ]
+
+// The calorie target is already a cut number - roughly 400 under maintenance.
+// So the risk is not overshooting it, it is quietly landing 700 under, where
+// a deficit stops taking fat and starts taking muscle. The floor sits 300
+// below the target rather than being a number of its own, so editing the
+// target moves it too.
+export const KCAL_FLOOR_GAP = 300
+
+export function kcalFloor(targets){
+  const want = num(targets?.kcal)
+  return want > 0 ? Math.max(0, want - KCAL_FLOOR_GAP) : 0
+}
 
 export function num(v){
   const n = Number(v)
@@ -69,6 +85,25 @@ export function foodsByUse(db){
     .slice()
     .sort((a, b) => (counts.get(b.id) || 0) - (counts.get(a.id) || 0) || a.name.localeCompare(b.name))
     .map(f => ({ ...f, uses: counts.get(f.id) || 0 }))
+}
+
+// Average daily calories across the last `days` calendar days ending at
+// `date`, counting only days that were actually logged - a day with no
+// entries is a day he did not record, not a day he ate nothing, and
+// averaging in zeroes would invent a deficit that never happened.
+export function averageIntake(db, date, days = 7){
+  const end = new Date(date + 'T12:00:00')
+  let total = 0
+  let logged = 0
+  for (let i = 0; i < days; i++){
+    const d = new Date(end)
+    d.setDate(d.getDate() - i)
+    const entries = logForDate(db, d.toISOString().slice(0, 10))
+    if (entries.length === 0) continue
+    total += sumMacros(entries).kcal
+    logged++
+  }
+  return { avg: logged ? total / logged : null, logged }
 }
 
 export function weightsFor(db){

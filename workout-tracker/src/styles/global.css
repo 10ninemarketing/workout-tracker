@@ -459,3 +459,18 @@ input[type="date"].input::-webkit-date-and-time-value{ text-align:left; }
   border-radius:10px; font-size:13px; line-height:1.45; color:var(--text-2);
 }
 .cues li::marker{ color:var(--text-3); font-variant-numeric:tabular-nums; }
+
+/* Where the deficit stops being useful ----------------------------------- */
+/* .footnote is defined after .danger-text at the same specificity, so a
+   footnote that needs to read as a warning has to say so explicitly. */
+.footnote.danger-text{ color:var(--danger); }
+
+/* The track clips its fill, which would clip the floor marker too. Round the
+   fill itself instead so the marker can sit proud of the bar. */
+.macro-track{ position:relative; overflow:visible; }
+.macro-fill{ border-radius:999px; }
+.macro-floor{
+  position:absolute; top:-3px; bottom:-3px; width:2px;
+  background:var(--text-2); border-radius:1px;
+  transform:translateX(-1px); pointer-events:none;
+}
