@@ -1,7 +1,7 @@
 import { uid } from '../lib/workout.js'
 
 const KEY = 'wt_v1'
-const SCHEMA_VERSION = 30
+const SCHEMA_VERSION = 31
 
 // Exercises that got renamed after the fact. History keeps a name snapshot per
 // entry, so a rename has to sweep the sessions too or old workouts keep the old label.
@@ -290,6 +290,15 @@ const LIBRARY_FOODS = [
     brand: 'Organic',
     serving: '1 cup cooked (~225 g)',
     kcal: 160, protein: 6, carbs: 31, fat: 3, satFat: 0.5, fiber: 4, soluble: 2,
+  },
+  {
+    // 7 g of saturated fat for 13 g of protein - the worst exchange rate in
+    // the library, and more than a third of a day's ceiling in one serving.
+    // Dinner, not a protein source.
+    name: 'Meatballs',
+    brand: 'Perfect Organic',
+    serving: '4 meatballs (85 g)',
+    kcal: 240, protein: 13, carbs: 5, fat: 19, satFat: 7, fiber: 1, soluble: 0.2,
   },
 ]
 
