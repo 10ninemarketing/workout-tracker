@@ -1,7 +1,7 @@
 import { uid } from '../lib/workout.js'
 
 const KEY = 'wt_v1'
-const SCHEMA_VERSION = 31
+const SCHEMA_VERSION = 32
 
 // Exercises that got renamed after the fact. History keeps a name snapshot per
 // entry, so a rename has to sweep the sessions too or old workouts keep the old label.
@@ -258,12 +258,13 @@ const LIBRARY_FOODS = [
     kcal: 124, protein: 0, carbs: 0, fat: 14, satFat: 1.6, fiber: 0, soluble: 0,
   },
   {
-    // Shelled, unsalted. Close enough to almonds that buying almonds instead
-    // would be a purchase with no result attached to it.
-    name: 'Pistachios (shelled, unsalted)',
+    // Off his bag rather than a reference table: 30 g servings, and the
+    // 160 mg of sodium says these are salted. Close enough to almonds that
+    // buying almonds instead would be a purchase with no result attached.
+    name: 'Pistachios (shelled, salted)',
     brand: '',
-    serving: '1 oz (28 g)',
-    kcal: 159, protein: 5.7, carbs: 7.7, fat: 12.9, satFat: 1.6, fiber: 3, soluble: 0.4,
+    serving: 'About 1/4 cup (30 g)',
+    kcal: 170, protein: 6, carbs: 8, fat: 14, satFat: 1.5, fiber: 3, soluble: 0.4,
   },
   {
     // Frozen, cooked from frozen. The cheapest fiber in the library: 5.5 g for
@@ -493,6 +494,20 @@ function migrate(db){
     for (const known of LIBRARY_FOODS){
       const food = db.foods.find(f => f.name === known.name && (f.brand || '') === (known.brand || ''))
       if (food && !food.libKey) food.libKey = libKeyOf(known)
+    }
+  }
+
+  if (from < 32){
+    // The pistachios went in from a reference table before he sent the bag.
+    // Correct that entry in place and carry its key across, because the loop
+    // below matches on libKey and would otherwise read the rename as a
+    // missing food and push a second pistachio entry in beside it.
+    const known = LIBRARY_FOODS.find(f => f.name === 'Pistachios (shelled, salted)')
+    const old = db.foods.find(f => (
+      f.libKey === 'Pistachios (shelled, unsalted)|' || f.name === 'Pistachios (shelled, unsalted)'
+    ))
+    if (known && old){
+      Object.assign(old, known, { id: old.id, libKey: libKeyOf(known), createdAt: old.createdAt })
     }
   }
 
