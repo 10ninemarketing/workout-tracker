@@ -1,7 +1,7 @@
 import { uid } from '../lib/workout.js'
 
 const KEY = 'wt_v1'
-const SCHEMA_VERSION = 34
+const SCHEMA_VERSION = 35
 
 // Exercises that got renamed after the fact. History keeps a name snapshot per
 // entry, so a rename has to sweep the sessions too or old workouts keep the old label.
@@ -64,15 +64,25 @@ const ADDED_EXERCISES_V29 = [
   { name: 'Cable Pull-Through', category: 'Legs', equipment: 'Cable' },
 ]
 
-// Cut-phase numbers: ~400 under an estimated 2,800 maintenance, protein at
-// 1.0 g/lb of bodyweight, fat high enough to leave hormones alone. Editable
-// in Settings - these are a starting point, not a verdict.
-// satFat is a ceiling, not a goal: ~7% of calories, the threshold the lipid
-// evidence actually uses.
 // Identity for a library food that survives being renamed on the phone.
 const libKeyOf = f => `${f.name}|${f.brand || ''}`
 
-export const DEFAULT_TARGETS = { kcal: 2400, protein: 185, carbs: 220, fat: 85, satFat: 19, fiber: 35, soluble: 10 }
+// Cut-phase numbers: ~400 under an estimated 2,800 maintenance, protein at
+// 1.0 g/lb of bodyweight. Editable in Settings - a starting point, not a
+// verdict.
+//
+// Carbs 175 rather than 220, because the 220 was a default split and he has
+// eaten closer to 170 for years by preference. A target nobody intends to hit
+// teaches you to ignore the bars, which is the one thing this screen cannot
+// afford. 175 still clears the floor where glycogen starts limiting
+// near-failure sets - call that 150 - with room above it.
+//
+// Calories have to land somewhere, so fat takes the 45 g back and goes to
+// 105: 39% of intake, Mediterranean territory, well evidenced for exactly the
+// lipid picture he has. That only holds while the extra fat is unsaturated,
+// which is why satFat does not move. It is a ceiling, not a goal: ~7% of
+// calories, the threshold the lipid evidence actually uses.
+export const DEFAULT_TARGETS = { kcal: 2400, protein: 185, carbs: 175, fat: 105, satFat: 19, fiber: 35, soluble: 10 }
 
 // Foods entered from their labels. Macros are per serving, exactly as printed -
 // no portion sizes here, because what he eats at a sitting is a servings
@@ -512,6 +522,16 @@ function migrate(db){
     for (const known of LIBRARY_FOODS){
       const food = db.foods.find(f => f.name === known.name && (f.brand || '') === (known.brand || ''))
       if (food && !food.libKey) food.libKey = libKeyOf(known)
+    }
+  }
+
+  if (from < 35){
+    // Only move targets still sitting at the old defaults. Anything edited in
+    // Settings is his number and stays his number.
+    const t = db.settings.targets
+    if (t && t.carbs === 220 && t.fat === 85){
+      t.carbs = DEFAULT_TARGETS.carbs
+      t.fat = DEFAULT_TARGETS.fat
     }
   }
 
