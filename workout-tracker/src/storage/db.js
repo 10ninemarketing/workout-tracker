@@ -1,7 +1,7 @@
 import { uid } from '../lib/workout.js'
 
 const KEY = 'wt_v1'
-const SCHEMA_VERSION = 32
+const SCHEMA_VERSION = 33
 
 // Exercises that got renamed after the fact. History keeps a name snapshot per
 // entry, so a rename has to sweep the sessions too or old workouts keep the old label.
@@ -300,6 +300,15 @@ const LIBRARY_FOODS = [
     brand: 'Perfect Organic',
     serving: '4 meatballs (85 g)',
     kcal: 240, protein: 13, carbs: 5, fat: 19, satFat: 7, fiber: 1, soluble: 0.2,
+  },
+  {
+    // Regular, not light - no label was sent, so this is the standard full-fat
+    // one. 1.75 g of saturated fat per tablespoon puts it alongside the half
+    // and half: small servings, and the day's ceiling goes quickly.
+    name: 'Sour Cream (regular)',
+    brand: '',
+    serving: '2 Tbsp (30 g)',
+    kcal: 60, protein: 1, carbs: 1, fat: 5, satFat: 3.5, fiber: 0, soluble: 0,
   },
 ]
 
