@@ -1,7 +1,7 @@
 import { uid } from '../lib/workout.js'
 
 const KEY = 'wt_v1'
-const SCHEMA_VERSION = 33
+const SCHEMA_VERSION = 34
 
 // Exercises that got renamed after the fact. History keeps a name snapshot per
 // entry, so a rename has to sweep the sessions too or old workouts keep the old label.
@@ -309,6 +309,15 @@ const LIBRARY_FOODS = [
     brand: '',
     serving: '2 Tbsp (30 g)',
     kcal: 60, protein: 1, carbs: 1, fat: 5, satFat: 3.5, fiber: 0, soluble: 0,
+  },
+  {
+    // 1.5 g of protein per 100 kcal - a chip, whatever the bag says about
+    // grain-free. The 0.5 g of saturated fat is the one number worth having.
+    // Ten chips is a serving and the bag holds seven.
+    name: 'Tortilla Chips (Street Corn)',
+    brand: 'Siete',
+    serving: '1 oz (28 g / ~10 chips)',
+    kcal: 130, protein: 2, carbs: 16, fat: 6, satFat: 0.5, fiber: 2, soluble: 0.2,
   },
 ]
 
