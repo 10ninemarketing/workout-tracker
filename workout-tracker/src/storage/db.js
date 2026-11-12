@@ -1,7 +1,7 @@
 import { uid } from '../lib/workout.js'
 
 const KEY = 'wt_v1'
-const SCHEMA_VERSION = 36
+const SCHEMA_VERSION = 37
 
 // Exercises that got renamed after the fact. History keeps a name snapshot per
 // entry, so a rename has to sweep the sessions too or old workouts keep the old label.
@@ -341,6 +341,16 @@ const LIBRARY_FOODS = [
     brand: 'Whole Foods Organic',
     serving: '1/2 cup prepared (1 of 3)',
     kcal: 230, protein: 5, carbs: 42, fat: 5, satFat: 0, fiber: 2, soluble: 0.2,
+  },
+  {
+    // 32 g of protein is the most in a single serving of anything here, and
+    // the fat is the point rather than the cost: 1 g saturated against 3.5 g
+    // of poly and mono, and roughly 1.5 g of EPA and DHA that the tuna does
+    // not have. The label's numbers match 5 oz of wild sockeye almost exactly.
+    name: 'Wild Salmon Fillet',
+    brand: '',
+    serving: '1 fillet, 5 oz (142 g)',
+    kcal: 190, protein: 32, carbs: 0, fat: 7, satFat: 1, fiber: 0, soluble: 0,
   },
 ]
 
