@@ -1,7 +1,7 @@
 import { uid } from '../lib/workout.js'
 
 const KEY = 'wt_v1'
-const SCHEMA_VERSION = 35
+const SCHEMA_VERSION = 36
 
 // Exercises that got renamed after the fact. History keeps a name snapshot per
 // entry, so a rename has to sweep the sessions too or old workouts keep the old label.
@@ -328,6 +328,19 @@ const LIBRARY_FOODS = [
     brand: 'Siete',
     serving: '1 oz (28 g / ~10 chips)',
     kcal: 130, protein: 2, carbs: 16, fat: 6, satFat: 0.5, fiber: 2, soluble: 0.2,
+  },
+  {
+    // The "as prepared" column, which is the one that reaches a plate: the dry
+    // blend plus the olive oil the box tells you to cook it in. Without the
+    // oil it is 190 kcal and 0.5 g of fat.
+    //
+    // 42 g of carbohydrate for 230 kcal makes this one of the better carb
+    // sources in the library, which is the gap he actually has. The 740 mg of
+    // sodium per serving is the highest of anything here by a distance.
+    name: 'Long Grain & Wild Rice Pilaf',
+    brand: 'Whole Foods Organic',
+    serving: '1/2 cup prepared (1 of 3)',
+    kcal: 230, protein: 5, carbs: 42, fat: 5, satFat: 0, fiber: 2, soluble: 0.2,
   },
 ]
 
