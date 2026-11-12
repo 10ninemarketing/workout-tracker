@@ -1,7 +1,7 @@
 import { uid } from '../lib/workout.js'
 
 const KEY = 'wt_v1'
-const SCHEMA_VERSION = 37
+const SCHEMA_VERSION = 38
 
 // Exercises that got renamed after the fact. History keeps a name snapshot per
 // entry, so a rename has to sweep the sessions too or old workouts keep the old label.
@@ -351,6 +351,16 @@ const LIBRARY_FOODS = [
     brand: '',
     serving: '1 fillet, 5 oz (142 g)',
     kcal: 190, protein: 32, carbs: 0, fat: 7, satFat: 1, fiber: 0, soluble: 0,
+  },
+  {
+    // No label - homemade. The cabbage is 22 kcal a cup and the rest is
+    // mayonnaise, so the whole entry rests on one assumption: about a
+    // tablespoon of mayo per cup, which is what lightly dressed means. The
+    // name carries the assumption so it can be checked later.
+    name: 'Coleslaw (lightly dressed)',
+    brand: '',
+    serving: '1 cup (~130 g)',
+    kcal: 120, protein: 1.5, carbs: 7, fat: 10, satFat: 1.6, fiber: 2, soluble: 0.6,
   },
 ]
 
