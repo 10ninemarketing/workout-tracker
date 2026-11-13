@@ -1,7 +1,7 @@
 import { uid } from '../lib/workout.js'
 
 const KEY = 'wt_v1'
-const SCHEMA_VERSION = 38
+const SCHEMA_VERSION = 39
 
 // Exercises that got renamed after the fact. History keeps a name snapshot per
 // entry, so a rename has to sweep the sessions too or old workouts keep the old label.
@@ -361,6 +361,17 @@ const LIBRARY_FOODS = [
     brand: '',
     serving: '1 cup (~130 g)',
     kcal: 120, protein: 1.5, carbs: 7, fat: 10, satFat: 1.6, fiber: 2, soluble: 0.6,
+  },
+  {
+    // 70 mg of sodium is the lowest of any protein entered here - a tenth of
+    // the rice pilaf. Density is only 12.9 g per 100 kcal because half the
+    // calories are the fish's own fat, which is the reason to eat it: EPA and
+    // DHA in the same range as the salmon fillet, plus 70% of a day's vitamin
+    // D, which almost no food carries.
+    name: 'Sardines in Water',
+    brand: 'Wild Planet',
+    serving: '3 oz (85 g)',
+    kcal: 140, protein: 18, carbs: 0, fat: 8, satFat: 2.5, fiber: 0, soluble: 0,
   },
 ]
 
