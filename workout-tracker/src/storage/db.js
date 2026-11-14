@@ -1,7 +1,7 @@
 import { uid } from '../lib/workout.js'
 
 const KEY = 'wt_v1'
-const SCHEMA_VERSION = 39
+const SCHEMA_VERSION = 40
 
 // Exercises that got renamed after the fact. History keeps a name snapshot per
 // entry, so a rename has to sweep the sessions too or old workouts keep the old label.
@@ -372,6 +372,15 @@ const LIBRARY_FOODS = [
     brand: 'Wild Planet',
     serving: '3 oz (85 g)',
     kcal: 140, protein: 18, carbs: 0, fat: 8, satFat: 2.5, fiber: 0, soluble: 0,
+  },
+  {
+    // Beats the 93/7 ground turkey on every line: same 22 g of protein for 20
+    // fewer calories, 2 g less fat and 0.3 g less saturated. A straight swap
+    // with nothing given up.
+    name: 'Ground Chicken',
+    brand: '',
+    serving: '4 oz raw (112 g)',
+    kcal: 150, protein: 22, carbs: 0, fat: 7, satFat: 2, fiber: 0, soluble: 0,
   },
 ]
 
