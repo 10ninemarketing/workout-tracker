@@ -1,7 +1,7 @@
 import { uid } from '../lib/workout.js'
 
 const KEY = 'wt_v1'
-const SCHEMA_VERSION = 40
+const SCHEMA_VERSION = 41
 
 // Exercises that got renamed after the fact. History keeps a name snapshot per
 // entry, so a rename has to sweep the sessions too or old workouts keep the old label.
@@ -381,6 +381,16 @@ const LIBRARY_FOODS = [
     brand: '',
     serving: '4 oz raw (112 g)',
     kcal: 150, protein: 22, carbs: 0, fat: 7, satFat: 2, fiber: 0, soluble: 0,
+  },
+  {
+    // Nutritionally the same food as the Siete chips: ten more calories, same
+    // 0.5 g saturated, same 2 g protein, same 2 g fiber. 6 g of the 8 g of
+    // fat is monounsaturated, which means a high-oleic oil rather than a
+    // degraded one - less saturated fat per serving than the pistachios.
+    name: 'Truffle Potato Chips',
+    brand: '',
+    serving: '1 oz (28 g / ~9 chips)',
+    kcal: 140, protein: 2, carbs: 15, fat: 8, satFat: 0.5, fiber: 2, soluble: 0.5,
   },
 ]
 
