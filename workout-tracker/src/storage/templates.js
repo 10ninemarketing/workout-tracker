@@ -37,8 +37,11 @@ export const DAY_TEMPLATES = [
     label: 'Upper A – Heavy',
     items: [
       { name: 'Face Pulls', sets: 2, reps: '20–25' },
-      { name: 'Lat Pulldown', sets: 3, reps: '8–10' },
+      // Smith before the pulldown: it is the heaviest lift of the week and it
+      // belongs where he is freshest. This is the order he already uses - the
+      // template was fighting him every session.
       { name: 'Smith Flat Press', sets: 3, reps: '6–8' },
+      { name: 'Lat Pulldown', sets: 3, reps: '8–10' },
       { name: 'Machine Row', sets: 3, reps: '6–8' },
       { name: 'Incline DB Bench (neutral grip)', sets: 2, reps: '10–12' },
       { name: 'Lateral Raises (strict, light)', sets: 3, reps: '15–20' },
