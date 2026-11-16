@@ -2,3 +2,6 @@ node_modules/
 .claude/
 .DS_Store
 *.local
+
+# Local-only health records - never commit (public repo)
+health/
