@@ -1,7 +1,7 @@
 import { uid } from '../lib/workout.js'
 
 const KEY = 'wt_v1'
-const SCHEMA_VERSION = 44
+const SCHEMA_VERSION = 45
 
 // Exercises that got renamed after the fact. History keeps a name snapshot per
 // entry, so a rename has to sweep the sessions too or old workouts keep the old label.
@@ -208,6 +208,22 @@ const LIBRARY_FOODS = [
     brand: 'Good Karma Protein+',
     serving: '1 cup (240 mL)',
     kcal: 45, protein: 5, carbs: 1, fat: 2.5, satFat: 0, fiber: 0, soluble: 0,
+  },
+  {
+    // A 16 oz cup is not 16 oz of milk. Two shots of espresso take ~2 oz and
+    // ice takes most of the rest; a grande iced latte lands around 8-10 oz of
+    // milk poured, which matches what he sees at the counter. Built on 9 oz
+    // (274 g) of whole milk plus two shots - espresso itself is ~5 kcal and
+    // rounds away.
+    //
+    // The 5.1 g of saturated fat is the number that matters here, not the
+    // calories: it is a quarter of the 19 g daily cap in one glass. Fine at
+    // once a week. If it ever becomes a daily habit, switch the milk, not the
+    // drink - 2% drops it to ~3.2 g, nonfat to ~0.3 g, and the protein holds.
+    name: 'Iced Latte (16 oz, whole milk)',
+    brand: '',
+    serving: '16 oz cup (~9 oz milk)',
+    kcal: 170, protein: 8.6, carbs: 13.2, fat: 8.9, satFat: 5.1, fiber: 0, soluble: 0,
   },
   {
     // The carbohydrate here is fiber and is not absorbed, so the calories are
