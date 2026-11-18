@@ -1,7 +1,7 @@
 import { uid } from '../lib/workout.js'
 
 const KEY = 'wt_v1'
-const SCHEMA_VERSION = 43
+const SCHEMA_VERSION = 44
 
 // Exercises that got renamed after the fact. History keeps a name snapshot per
 // entry, so a rename has to sweep the sessions too or old workouts keep the old label.
@@ -297,15 +297,22 @@ const LIBRARY_FOODS = [
     // Calories run 30-50 across brands; 40 is the midpoint he chose.
     //
     // The 3 g of fiber is inulin (chicory root, agave, Jerusalem artichoke).
-    // That is genuinely soluble, so it is logged as soluble - but inulin is
-    // NOT viscous, and viscosity is what lowers LDL by trapping bile acids.
-    // Psyllium and oat beta-glucan do that job; this does not. It counts
-    // toward total and soluble fiber and contributes nothing to the LDL
-    // lever those numbers are being tracked for.
+    // Chemically that is soluble fiber, but it is deliberately logged as
+    // soluble: 0.
+    //
+    // The soluble target in this app is not a chemistry score - it exists as
+    // an LDL lever, and that lever runs on VISCOSITY: a gel-forming fiber
+    // traps bile acids, the liver pulls cholesterol from circulation to
+    // replace them, LDL receptors upregulate. Psyllium and oat beta-glucan
+    // gel. Inulin does not. Counting it would let the soluble number read
+    // green on a day it did no cholesterol work at all.
+    //
+    // Still counted in total fiber, which is where it belongs, and it is a
+    // real prebiotic. It just is not the thing the soluble row tracks.
     name: 'Probiotic Soda',
     brand: '',
     serving: '1 can (12 fl oz)',
-    kcal: 40, protein: 0, carbs: 9, fat: 0, satFat: 0, fiber: 3, soluble: 3,
+    kcal: 40, protein: 0, carbs: 9, fat: 0, satFat: 0, fiber: 3, soluble: 0,
   },
   {
     // Measured cooked, which is how it lands on a plate. Dry is roughly a
@@ -653,6 +660,14 @@ function migrate(db){
       const food = db.foods.find(f => f.name === known.name && (f.brand || '') === (known.brand || ''))
       if (food && food.satFat == null) food.satFat = known.satFat
     }
+  }
+
+  if (from < 44){
+    // Shipped at v43 with soluble: 3, then corrected. Inulin is soluble but
+    // not viscous, so it does no LDL work - see the library comment. Only
+    // touch it if it still holds the shipped value, so a phone edit survives.
+    const soda = db.foods.find(f => f.name === 'Probiotic Soda')
+    if (soda && soda.soluble === 3) soda.soluble = 0
   }
 
   if (from < 20){
