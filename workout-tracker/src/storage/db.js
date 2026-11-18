@@ -1,7 +1,7 @@
 import { uid } from '../lib/workout.js'
 
 const KEY = 'wt_v1'
-const SCHEMA_VERSION = 42
+const SCHEMA_VERSION = 43
 
 // Exercises that got renamed after the fact. History keeps a name snapshot per
 // entry, so a rename has to sweep the sessions too or old workouts keep the old label.
@@ -292,6 +292,20 @@ const LIBRARY_FOODS = [
     brand: '',
     serving: '1 cup chopped (156 g)',
     kcal: 55, protein: 3.7, carbs: 11.2, fat: 0.6, satFat: 0.1, fiber: 5.1, soluble: 1.5,
+  },
+  {
+    // Calories run 30-50 across brands; 40 is the midpoint he chose.
+    //
+    // The 3 g of fiber is inulin (chicory root, agave, Jerusalem artichoke).
+    // That is genuinely soluble, so it is logged as soluble - but inulin is
+    // NOT viscous, and viscosity is what lowers LDL by trapping bile acids.
+    // Psyllium and oat beta-glucan do that job; this does not. It counts
+    // toward total and soluble fiber and contributes nothing to the LDL
+    // lever those numbers are being tracked for.
+    name: 'Probiotic Soda',
+    brand: '',
+    serving: '1 can (12 fl oz)',
+    kcal: 40, protein: 0, carbs: 9, fat: 0, satFat: 0, fiber: 3, soluble: 3,
   },
   {
     // Measured cooked, which is how it lands on a plate. Dry is roughly a
