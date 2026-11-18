@@ -1,7 +1,7 @@
 import { uid } from '../lib/workout.js'
 
 const KEY = 'wt_v1'
-const SCHEMA_VERSION = 41
+const SCHEMA_VERSION = 42
 
 // Exercises that got renamed after the fact. History keeps a name snapshot per
 // entry, so a rename has to sweep the sessions too or old workouts keep the old label.
@@ -283,6 +283,15 @@ const LIBRARY_FOODS = [
     brand: '',
     serving: '1 cup (184 g)',
     kcal: 52, protein: 5.7, carbs: 9.2, fat: 0.2, satFat: 0, fiber: 5.5, soluble: 1.6,
+  },
+  {
+    // Fresh, steamed. Kept separate from the frozen entry because a cup of
+    // fresh chopped weighs less (156 g vs 184 g) and carries 2 g less protein -
+    // frozen is cut smaller and packs denser. USDA values; no label exists.
+    name: 'Broccoli (fresh, steamed)',
+    brand: '',
+    serving: '1 cup chopped (156 g)',
+    kcal: 55, protein: 3.7, carbs: 11.2, fat: 0.6, satFat: 0.1, fiber: 5.1, soluble: 1.5,
   },
   {
     // Measured cooked, which is how it lands on a plate. Dry is roughly a
