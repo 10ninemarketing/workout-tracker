@@ -1,7 +1,7 @@
 import { uid } from '../lib/workout.js'
 
 const KEY = 'wt_v1'
-const SCHEMA_VERSION = 45
+const SCHEMA_VERSION = 46
 
 // Exercises that got renamed after the fact. History keeps a name snapshot per
 // entry, so a rename has to sweep the sessions too or old workouts keep the old label.
@@ -176,6 +176,27 @@ const LIBRARY_FOODS = [
     brand: '',
     serving: '100 g',
     kcal: 95, protein: 2.5, carbs: 21.5, fat: 0.1, satFat: 0, fiber: 2.1, soluble: 0.6,
+  },
+  {
+    // Off the label. Potatoes, green beans, carrots, finished in extra virgin
+    // olive oil - which is where the 2 g of fat comes from, and why none of it
+    // is saturated. The bag is about 3 servings, so the whole thing is 240 kcal.
+    //
+    // 4 g of fiber for eighty calories is the real reason this is in the
+    // library; the 2 g of protein is not why anyone eats it.
+    //
+    // soluble: 1.3 is an estimate, not a label value - the label does not split
+    // it. That is ~33 %, matching the plain potato entries above. Unlike the
+    // inulin in the probiotic soda, this fraction is mostly pectin from the
+    // potato skin and carrot, and pectin does gel, so it does real bile-acid
+    // work. Weaker per gram than psyllium, but it counts.
+    //
+    // Not tracked here: 230 mg sodium a cup. Worth knowing on a day the LMNT
+    // packet already went in.
+    name: 'Baby Potato Blend',
+    brand: 'Whole Foods Market',
+    serving: '1 cup (110 g)',
+    kcal: 80, protein: 2, carbs: 16, fat: 2, satFat: 0, fiber: 4, soluble: 1.3,
   },
   {
     name: 'Blueberries',
