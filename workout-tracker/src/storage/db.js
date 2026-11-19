@@ -1,7 +1,7 @@
 import { uid } from '../lib/workout.js'
 
 const KEY = 'wt_v1'
-const SCHEMA_VERSION = 46
+const SCHEMA_VERSION = 47
 
 // Exercises that got renamed after the fact. History keeps a name snapshot per
 // entry, so a rename has to sweep the sessions too or old workouts keep the old label.
@@ -82,7 +82,7 @@ const libKeyOf = f => `${f.name}|${f.brand || ''}`
 // lipid picture he has. That only holds while the extra fat is unsaturated,
 // which is why satFat does not move. It is a ceiling, not a goal: ~7% of
 // calories, the threshold the lipid evidence actually uses.
-export const DEFAULT_TARGETS = { kcal: 2400, protein: 185, carbs: 175, fat: 105, satFat: 19, fiber: 35, soluble: 10 }
+export const DEFAULT_TARGETS = { kcal: 2400, protein: 185, carbs: 140, fat: 120, satFat: 19, fiber: 35, soluble: 10 }
 
 // Foods entered from their labels. Macros are per serving, exactly as printed -
 // no portion sizes here, because what he eats at a sitting is a servings
@@ -660,6 +660,21 @@ function migrate(db){
     // Settings is his number and stays his number.
     const t = db.settings.targets
     if (t && t.carbs === 220 && t.fat === 85){
+      t.carbs = DEFAULT_TARGETS.carbs
+      t.fat = DEFAULT_TARGETS.fat
+    }
+  }
+
+  if (from < 47){
+    // 35 g of carbohydrate moved into 15 g of fat - same calories, same
+    // protein. 175 g was a number he was force-feeding himself most nights;
+    // 140 g still clears 35 g of fiber on oats, psyllium and vegetables.
+    //
+    // The fat goes up on olive oil and nuts, which is why the 19 g saturated
+    // cap does not move. That cap is now the binding constraint on this row,
+    // not the fat total.
+    const t = db.settings.targets
+    if (t && t.carbs === 175 && t.fat === 105){
       t.carbs = DEFAULT_TARGETS.carbs
       t.fat = DEFAULT_TARGETS.fat
     }

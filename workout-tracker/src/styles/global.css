@@ -73,6 +73,8 @@ button{ cursor:pointer; touch-action:manipulation; -webkit-user-select:none; use
 .card{ background:var(--surface); border:1px solid var(--line); border-radius:var(--radius); padding:16px; }
 .card-head{ display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:14px; }
 .card-title{ font-size:17px; font-weight:700; letter-spacing:-0.01em; }
+.card-sub{ color:var(--text-2); font-size:13px; font-weight:500; margin-top:3px; }
+.card-sub.danger-text{ color:var(--danger); }
 .card-accent{ border-color:rgba(212,252,79,0.3); background:linear-gradient(150deg, rgba(212,252,79,0.14), var(--surface) 60%); }
 .empty{ text-align:center; padding:24px 12px; }
 .empty-title{ font-weight:700; margin-bottom:4px; }

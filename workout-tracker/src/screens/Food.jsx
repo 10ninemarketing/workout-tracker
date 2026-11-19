@@ -109,7 +109,18 @@ export default function Food({ db, api, notify }){
 
       <section className="card">
         <div className="card-head">
-          <div className="card-title">{fmt(totals.kcal)} <span className="muted">/ {fmt(targets.kcal)}</span></div>
+          <div>
+            <div className="card-title">{fmt(totals.kcal)} <span className="muted">/ {fmt(targets.kcal)}</span></div>
+            {/* The daily number is noise he cannot act on after the fact. The
+                average is the one that decides whether this works, so it sits
+                next to the headline instead of under three other footnotes. */}
+            {week.avg != null && week.logged >= 3 && (
+              <div className={`card-sub${week.avg < floor ? ' danger-text' : ''}`}>
+                7-day avg {fmt(week.avg)} across {week.logged} days
+                {week.avg < floor ? ' — below the floor' : ''}
+              </div>
+            )}
+          </div>
           <div className={`delta${totals.kcal > num(targets.kcal) ? '' : ' up'}`}>
             {totals.kcal > num(targets.kcal)
               ? `${fmt(totals.kcal - num(targets.kcal))} over`
@@ -152,15 +163,6 @@ export default function Food({ db, api, notify }){
           <p className="footnote danger-text">
             {fmt(floor - totals.kcal)} under the floor of {fmt(floor)}. A deficit
             this size stops costing fat and starts costing muscle — eat something.
-          </p>
-        )}
-
-        {week.avg != null && week.logged >= 3 && (
-          <p className={`footnote${week.avg < floor ? ' danger-text' : ''}`}>
-            {fmt(week.avg)} kcal a day across {week.logged} logged day{week.logged === 1 ? '' : 's'}
-            {week.avg < floor
-              ? ' — below the floor. This is the number that matters, not any one day.'
-              : '. This is the number that matters, not any one day.'}
           </p>
         )}
 
