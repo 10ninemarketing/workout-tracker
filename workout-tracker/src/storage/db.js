@@ -1,7 +1,7 @@
 import { uid } from '../lib/workout.js'
 
 const KEY = 'wt_v1'
-const SCHEMA_VERSION = 47
+const SCHEMA_VERSION = 48
 
 // Exercises that got renamed after the fact. History keeps a name snapshot per
 // entry, so a rename has to sweep the sessions too or old workouts keep the old label.
@@ -109,6 +109,23 @@ const LIBRARY_FOODS = [
     brand: 'Costco',
     serving: '1/2 can',
     kcal: 80, protein: 17, carbs: 0, fat: 1.5, satFat: 0.3, fiber: 0, soluble: 0,
+  },
+  {
+    // Straight off the label. Honey smoked, and still 0 g carbohydrate - the
+    // glaze is thin enough to round away, so this is not a sugar source.
+    //
+    // Not a lean protein. 12 g of protein for 140 kcal is 0.09 g per calorie,
+    // against 0.21 for the canned salmon right above it - this is a fat that
+    // carries protein, not the reverse. That stopped being a problem when the
+    // fat target went to 120 g: 3 g of the 11 is polyunsaturated and most of
+    // that is EPA and DHA, which is the best version of filling that row.
+    //
+    // Not tracked here: 420 mg sodium in 2 oz, 840 mg in a real 4 oz portion.
+    // It is brine-cured, and it is the saltiest thing in this library.
+    name: 'Honey Smoked Salmon',
+    brand: '',
+    serving: '2 oz (56 g)',
+    kcal: 140, protein: 12, carbs: 0, fat: 11, satFat: 2, fiber: 0, soluble: 0,
   },
   {
     // 2,982 mg leucine per serving - clears the per-meal threshold on its own,
