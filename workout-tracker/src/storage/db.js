@@ -1,7 +1,7 @@
 import { uid } from '../lib/workout.js'
 
 const KEY = 'wt_v1'
-const SCHEMA_VERSION = 48
+const SCHEMA_VERSION = 49
 
 // Exercises that got renamed after the fact. History keeps a name snapshot per
 // entry, so a rename has to sweep the sessions too or old workouts keep the old label.
@@ -367,6 +367,31 @@ const LIBRARY_FOODS = [
     brand: '',
     serving: '1 can (12 fl oz)',
     kcal: 40, protein: 0, carbs: 9, fat: 0, satFat: 0, fiber: 3, soluble: 0,
+  },
+  {
+    // Half a bottle, because that is the pour - he does not drink the full 16
+    // oz. Stored at the portion he actually takes so logging it is one tap and
+    // not arithmetic. Doubling is the easy direction if that ever changes.
+    //
+    // Numbers are secondhand - MyFoodData relaying Open Food Facts, which is
+    // user-submitted, not a photo of the bottle in his hand. Health-Ade runs
+    // roughly 50-90 kcal per 16 oz depending on flavor, so the 80 this halves
+    // is the middle of a range rather than a measurement. Worth checking the
+    // actual bottle once; if his flavor reads differently, fix it here.
+    //
+    // 7 of the 8.5 g of sugar is added. That is the honest description of this
+    // drink: fermented tea thinned with fruit juice. The live cultures are
+    // real and the evidence they do anything measurable in a healthy adult is
+    // thin - thinner than the sauerkraut's, which at least brings fiber.
+    //
+    // At half a bottle this is 40 kcal and 9 g of carbohydrate, which lands it
+    // exactly on the probiotic soda above it minus the 3 g of fiber. Rare
+    // enough that none of it matters much. Not a lipid problem either - added
+    // sugar drives triglycerides, and his are 78.
+    name: 'Kombucha',
+    brand: 'Health-Ade',
+    serving: '1/2 bottle (8 fl oz)',
+    kcal: 40, protein: 0, carbs: 9, fat: 0, satFat: 0, fiber: 0, soluble: 0,
   },
   {
     // Measured cooked, which is how it lands on a plate. Dry is roughly a
